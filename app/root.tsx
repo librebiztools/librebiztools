@@ -1,4 +1,5 @@
 import {
+  Link,
   Links,
   Meta,
   Outlet,
@@ -11,16 +12,6 @@ import type { Route } from './+types/root';
 import stylesheet from './app.css?url';
 
 export const links: Route.LinksFunction = () => [
-  { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-  {
-    rel: 'preconnect',
-    href: 'https://fonts.gstatic.com',
-    crossOrigin: 'anonymous',
-  },
-  {
-    rel: 'stylesheet',
-    href: 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap',
-  },
   { rel: 'stylesheet', href: stylesheet },
 ];
 
@@ -34,6 +25,20 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
+        <div className="navbar bg-base-100 shadow-sm">
+          <div className="flex-1">
+            <Link className="btn btn-ghost text-xl" to="/">
+              libreBizTools
+            </Link>
+          </div>
+          <div className="flex-none">
+            <ul className="menu menu-horizontal px-1">
+              <li>
+                <Link to="/login">Login</Link>
+              </li>
+            </ul>
+          </div>
+        </div>
         {children}
         <ScrollRestoration />
         <Scripts />
