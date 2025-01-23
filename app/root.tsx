@@ -5,17 +5,37 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  data,
   isRouteErrorResponse,
+  useRouteLoaderData,
 } from 'react-router';
 
 import type { Route } from './+types/root';
 import stylesheet from './app.css?url';
+import { getUserForRequest } from './api.server/auth';
+import { ApiError } from './api.server/errors';
+import type { User } from './api/user';
 
 export const links: Route.LinksFunction = () => [
   { rel: 'stylesheet', href: stylesheet },
 ];
 
+export async function loader({ request }: Route.LoaderArgs) {
+  try {
+    const user = await getUserForRequest(request);
+    console.log('user', user);
+    return data(user);
+  } catch (err) {
+    if (err instanceof ApiError) {
+      return data({ message: err.message }, { status: err.code });
+    } else {
+      throw err;
+    }
+  }
+}
+
 export function Layout({ children }: { children: React.ReactNode }) {
+  const user = useRouteLoaderData<User | null>('root');
   return (
     <html lang="en">
       <head>
@@ -34,7 +54,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <div className="flex-none">
             <ul className="menu menu-horizontal px-1">
               <li>
-                <Link to="/login">Login</Link>
+                {!user && <Link to="/login">Login</Link>}
+                {user && (
+                  <details>
+                    <summary>{user.email}</summary>
+                    <ul>
+                      <li>
+                        <Link to="/logout">Logout</Link>
+                      </li>
+                    </ul>
+                  </details>
+                )}
               </li>
             </ul>
           </div>
