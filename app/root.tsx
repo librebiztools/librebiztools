@@ -23,7 +23,6 @@ export const links: Route.LinksFunction = () => [
 export async function loader({ request }: Route.LoaderArgs) {
   try {
     const user = await getUserForRequest(request);
-    console.log('user', user);
     return data(user);
   } catch (err) {
     if (err instanceof ApiError) {
