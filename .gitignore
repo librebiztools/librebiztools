@@ -4,3 +4,9 @@
 # React Router
 /.react-router/
 /build/
+
+# Environment variables
+.env
+
+# Sqlite
+local.db

@@ -1,20 +1,21 @@
-import { createCookie, login } from '~/api.server/auth';
-import type { Route } from './+types/login';
-import { data, Form, Link, redirect } from 'react-router';
-import { ApiError } from '~/api.server/errors';
 import { useMemo } from 'react';
+import type { Route } from './+types/signup';
+import { data, Form, Link, redirect } from 'react-router';
+import { createCookie, signup } from '~/api.server/auth';
+import { ApiError } from '~/api.server/errors';
 
 export function meta() {
-  return [{ title: 'libreBizTools Login' }];
+  return [{ title: 'libreBizTools Signup' }];
 }
 
 export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
   const email = formData.get('email')?.toString();
   const password = formData.get('password')?.toString();
+  const confirmPassword = formData.get('confirm-password')?.toString();
 
   try {
-    const result = await login({ email, password });
+    const result = await signup({ email, password, confirmPassword });
     return redirect('/', {
       headers: {
         'Set-Cookie': createCookie(result.token),
@@ -29,7 +30,7 @@ export async function action({ request }: Route.ActionArgs) {
   }
 }
 
-export default function Login({ actionData }: Route.ComponentProps) {
+export default function Signup({ actionData }: Route.ComponentProps) {
   const errorMessage = useMemo(
     () => (actionData ? actionData.message : ''),
     [actionData],
@@ -39,7 +40,7 @@ export default function Login({ actionData }: Route.ComponentProps) {
     <div className="flex min-h-screen flex-col items-center bg-base-200 pt-4">
       <div className="card w-full max-w-sm flex-shrink-0 bg-base-100 shadow-2xl">
         <div className="card-body">
-          <h2 className="card-title">Login</h2>
+          <h2 className="card-title">Signup</h2>
           <Form method="post">
             <fieldset className="fieldset">
               <label htmlFor="email" className="fieldset-label">
@@ -62,9 +63,16 @@ export default function Login({ actionData }: Route.ComponentProps) {
                 className="input"
                 placeholder="Password"
               />
-              <div>
-                <a className="link link-hover">Forgot password?</a>
-              </div>
+              <label htmlFor="confirm-password" className="fieldset-label">
+                Confirm Password
+              </label>
+              <input
+                id="confirm-password"
+                name="confirm-password"
+                type="password"
+                className="input"
+                placeholder="Confirm Password"
+              />
               {errorMessage && (
                 <div role="alert" className="alert alert-error">
                   <svg
@@ -84,12 +92,12 @@ export default function Login({ actionData }: Route.ComponentProps) {
                 </div>
               )}
               <button type="submit" className="btn btn-primary mt-4">
-                Login
+                Signup
               </button>
               <div className="text-center">
-                Need an account?{' '}
-                <Link to="/signup" className="link link-hover text-xs">
-                  Signup
+                Already have an account?{' '}
+                <Link to="/login" className="link link-hover text-xs">
+                  Login
                 </Link>
               </div>
             </fieldset>
