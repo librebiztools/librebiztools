@@ -1,8 +1,15 @@
-import { drizzle } from 'drizzle-orm/libsql';
+import { drizzle } from 'drizzle-orm/node-postgres';
 import config from '../config';
 import * as schema from '../db/schema';
+import { Pool } from 'pg';
 
-export function openConnection() {
-  const db = drizzle(config.DB_FILE_NAME, { schema });
-  return db;
-}
+const { POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB } = config;
+
+const pool = new Pool({
+  connectionString: `postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost/${POSTGRES_DB}`,
+});
+
+export const db = drizzle({
+  client: pool,
+  schema,
+});

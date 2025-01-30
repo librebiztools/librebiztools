@@ -1,23 +1,23 @@
 import { relations } from 'drizzle-orm';
-import { int, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { integer, pgTable, timestamp, varchar } from 'drizzle-orm/pg-core';
 
-export const users = sqliteTable('users', {
-  id: int().primaryKey({ autoIncrement: true }),
-  email: text().notNull().unique(),
-  password_hash: text().notNull(),
+export const users = pgTable('users', {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  email: varchar({ length: 254 }).notNull().unique(),
+  password_hash: varchar({ length: 100 }).notNull(),
 });
 
 export const usersRelations = relations(users, ({ many }) => ({
   tokens: many(tokens),
 }));
 
-export const tokens = sqliteTable('tokens', {
-  user_id: int()
+export const tokens = pgTable('tokens', {
+  user_id: integer()
     .notNull()
-    .references(() => users.id),
-  token: text().notNull(),
-  created_at: text().notNull(),
-  max_age: int().notNull(),
+    .references(() => users.id, { onDelete: 'cascade' }),
+  token: varchar({ length: 64 }).notNull(),
+  created_at: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  max_age: integer().notNull(),
 });
 
 export const tokensRelations = relations(tokens, ({ one }) => ({

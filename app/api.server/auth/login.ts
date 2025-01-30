@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm';
-import { openConnection } from '../db';
+import { db } from '../db';
 import { ApiError, InputError } from '../errors';
 import { users } from '../db/schema';
 import { AuthError } from '../errors/AuthError';
@@ -25,7 +25,6 @@ export async function login(request: LoginRequest): Promise<LoginResult> {
   }
 
   try {
-    const db = openConnection();
     const user = await db.query.users.findFirst({
       columns: {
         id: true,

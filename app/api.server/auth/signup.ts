@@ -1,8 +1,7 @@
 import { eq } from 'drizzle-orm';
-import { openConnection } from '../db';
+import { db } from '../db';
 import { ApiError, InputError } from '../errors';
-import { tokens, users } from '../db/schema';
-import { AuthError } from '../errors/AuthError';
+import { users } from '../db/schema';
 import { createHash } from './hash';
 import { createToken } from './createToken';
 
@@ -33,7 +32,6 @@ export async function signup(request: SignupRequest): Promise<SignupResult> {
     throw new InputError('Passwords do not match');
   }
 
-  const db = openConnection();
   const user = await db.query.users.findFirst({
     columns: {
       id: true,

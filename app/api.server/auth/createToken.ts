@@ -1,12 +1,10 @@
 import { randomBytes } from 'crypto';
-import { openConnection } from '../db';
+import { db } from '../db';
 import { tokens } from '../db/schema';
 import config from '../config';
-import { sql } from 'drizzle-orm';
 
 export async function createToken(userId: number): Promise<string> {
   const token = randomBytes(32).toString('hex');
-  const db = openConnection();
 
   const rows = await db
     .insert(tokens)
@@ -14,7 +12,6 @@ export async function createToken(userId: number): Promise<string> {
       user_id: userId,
       max_age: config.SESSION_TIMEOUT_MINUTES * 60,
       token,
-      created_at: sql`datetime('now')`,
     })
     .returning({
       token: tokens.token,

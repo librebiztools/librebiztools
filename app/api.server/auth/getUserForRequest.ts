@@ -1,4 +1,4 @@
-import { openConnection } from '../db';
+import { db } from '../db';
 import { eq } from 'drizzle-orm';
 import { tokens } from '../db/schema';
 import { AuthError } from '../errors';
@@ -34,8 +34,6 @@ export async function getUserForRequest(
 }
 
 async function getUserForToken(token: string): Promise<User> {
-  const db = openConnection();
-
   const record = await db.query.tokens.findFirst({
     where: eq(tokens.token, token),
     with: {
