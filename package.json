@@ -9,7 +9,8 @@
     "typecheck": "react-router typegen && tsc",
     "lint": "biome check --write --unsafe .",
     "db:reset": "rm local.db && drizzle-kit push",
-    "db:migrate": "drizzle-kit push"
+    "db:migrate": "drizzle-kit push",
+    "test": "vitest"
   },
   "dependencies": {
     "@libsql/client": "^0.14.0",
@@ -36,6 +37,7 @@
     "tailwindcss": "^4.0.0",
     "typescript": "^5.7.2",
     "vite": "^5.4.11",
-    "vite-tsconfig-paths": "^5.1.4"
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.0.4"
   }
 }
