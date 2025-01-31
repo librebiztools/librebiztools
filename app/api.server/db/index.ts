@@ -1,7 +1,8 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
 import config from '../config';
 import * as schema from '../db/schema';
-import { Pool } from 'pg';
+import pg from 'pg';
+const { Pool } = pg;
 
 const { POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB } = config;
 
