@@ -14,6 +14,8 @@ RUN rm -rf node_modules
 
 RUN npm install --omit=dev
 
+RUN npm install drizzle-kit
+
 EXPOSE 3000
 
 CMD npm run db:migrate ; npm run start
