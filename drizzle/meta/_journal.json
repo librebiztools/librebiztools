@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1738276245753,
-      "tag": "0000_mighty_surge",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1740406876348,
-      "tag": "0001_melodic_ironclad",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1740412368059,
-      "tag": "0002_real_spirit",
+      "when": 1740416342152,
+      "tag": "0000_far_big_bertha",
       "breakpoints": true
     }
   ]

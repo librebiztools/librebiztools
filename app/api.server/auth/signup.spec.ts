@@ -1,9 +1,10 @@
 import { expect, test } from 'vitest';
 import { db } from '../db';
-import { users } from '../db/schema';
+import { emails, users } from '../db/schema';
 import { InputError } from '../errors';
 import { createHash } from './hash';
 import { signup } from './signup';
+import { and, eq } from 'drizzle-orm';
 
 test('Throw on missing email', async () => {
   await expect(() =>
@@ -58,4 +59,17 @@ test('Return token on valid signup', async () => {
 
   const result = await signup({ email, password, confirmPassword: password });
   expect(result.token).toBeDefined();
+});
+
+test('Send signup email on valid signup', async () => {
+  const email = 'user@example.com';
+  const password = 'password';
+
+  await signup({ email, password, confirmPassword: password });
+
+  const row = await db.query.emails.findFirst({
+    where: and(eq(emails.to, email), eq(emails.templateId, 1)),
+  });
+
+  expect(row).toBeDefined();
 });

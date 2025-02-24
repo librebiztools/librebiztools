@@ -11,6 +11,7 @@ import {
 export const users = pgTable('users', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   email: varchar({ length: 254 }).notNull().unique(),
+  emailVerificationCode: varchar('email_verification_code', { length: 100 }),
   passwordHash: varchar('password_hash', { length: 100 }).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
@@ -79,12 +80,12 @@ export const emails = pgTable('emails', {
     .notNull()
     .references(() => emailTemplates.id),
   vars: json(),
+  from: varchar({ length: 254 }).notNull().default('noreply@librebiztools.com'),
+  to: varchar({ length: 254 }).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
     .defaultNow(),
-  createdBy: integer('created_by')
-    .notNull()
-    .references(() => users.id),
+  createdBy: integer('created_by').references(() => users.id),
   updatedAt: timestamp('updated_at', { withTimezone: true }).$onUpdateFn(
     () => new Date(),
   ),

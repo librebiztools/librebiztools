@@ -5,6 +5,7 @@ interface Config {
   POSTGRES_PASSWORD: string;
   POSTGRES_DB: string;
   SESSION_TIMEOUT_MINUTES: number;
+  BASE_URL: string;
 }
 
 const config = {
@@ -12,6 +13,7 @@ const config = {
   POSTGRES_PASSWORD: process.env.POSTGRES_PASSWORD || 'password',
   POSTGRES_DB: process.env.POSTGRES_DB || 'librebiztools',
   SESSION_TIMEOUT_MINUTES: 20,
+  BASE_URL: process.env.BASE_URL || 'http://localhost:3000',
 } as Config;
 
 export default config;

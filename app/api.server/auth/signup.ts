@@ -1,9 +1,11 @@
 import { eq } from 'drizzle-orm';
-import { db } from '../db';
-import { users } from '../db/schema';
+import { db, type TransactionType } from '../db';
+import { emails, users } from '../db/schema';
 import { ApiError, InputError } from '../errors';
 import { createToken } from './createToken';
 import { createHash } from './hash';
+import config from '../config';
+import { randomBytes } from 'node:crypto';
 
 interface SignupRequest {
   email: string | null | undefined;
@@ -47,11 +49,13 @@ export async function signup(request: SignupRequest): Promise<SignupResult> {
 
   try {
     const email = request.email;
+    const emailVerificationCode = randomBytes(32).toString('hex');
     return await db.transaction(async (tx) => {
       const userRows = await tx
         .insert(users)
         .values({
           email,
+          emailVerificationCode,
           passwordHash: hash,
         })
         .returning({
@@ -66,6 +70,8 @@ export async function signup(request: SignupRequest): Promise<SignupResult> {
 
       const token = await createToken(user.id, tx);
 
+      await sendSignupEmail(email, emailVerificationCode, tx);
+
       return {
         token,
       };
@@ -74,4 +80,18 @@ export async function signup(request: SignupRequest): Promise<SignupResult> {
     console.error('Failed to signup new user', err);
     throw new ApiError();
   }
+}
+
+async function sendSignupEmail(
+  email: string,
+  code: string,
+  tx: TransactionType,
+) {
+  await tx.insert(emails).values({
+    to: email,
+    templateId: 1,
+    vars: {
+      confirmation_link: `${config.BASE_URL}/confirm-email?email=${encodeURIComponent(email)}&code=${encodeURIComponent(code)}`,
+    },
+  });
 }
