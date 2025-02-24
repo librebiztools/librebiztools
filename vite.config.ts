@@ -8,6 +8,9 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['@node-rs/argon2'],
   },
+  server: {
+    port: 3000,
+  },
   test: {
     setupFiles: ['./test/setup.ts'],
   },

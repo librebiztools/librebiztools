@@ -55,9 +55,7 @@ export const emailTemplates = pgTable('email_templates', {
   createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
     .defaultNow(),
-  createdBy: integer('created_by')
-    .notNull()
-    .references(() => users.id),
+  createdBy: integer('created_by').references(() => users.id),
   updatedAt: timestamp('updated_at', { withTimezone: true }).$onUpdateFn(
     () => new Date(),
   ),

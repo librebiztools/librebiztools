@@ -5,4 +5,5 @@ export default [
   route('login', 'routes/login.tsx'),
   route('signup', 'routes/signup.tsx'),
   route('logout', 'routes/logout.ts'),
+  route('/api/reset-db', 'routes/api/reset-db.ts'),
 ] satisfies RouteConfig;
