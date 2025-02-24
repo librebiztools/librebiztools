@@ -24,9 +24,9 @@ export async function action({ request }: Route.ActionArgs) {
   } catch (err) {
     if (err instanceof ApiError) {
       return data({ message: err.message }, { status: err.code });
-    } else {
-      throw err;
     }
+
+    throw err;
   }
 }
 
