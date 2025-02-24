@@ -11,85 +11,99 @@ import {
 export const users = pgTable('users', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   email: varchar({ length: 254 }).notNull().unique(),
-  password_hash: varchar({ length: 100 }).notNull(),
-  created_at: timestamp({ withTimezone: true }).notNull().defaultNow(),
-  created_by: integer(),
-  updated_at: timestamp({ withTimezone: true }).$onUpdateFn(() => new Date()),
-  updated_by: integer(),
+  passwordHash: varchar('password_hash', { length: 100 }).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  createdBy: integer('created_by'),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).$onUpdateFn(
+    () => new Date(),
+  ),
+  updatedBy: integer('updated_by'),
 });
 
 export const usersRelations = relations(users, ({ one }) => ({
   created_by_user: one(users, {
-    fields: [users.created_by],
+    fields: [users.createdBy],
     references: [users.id],
   }),
   updated_by_user: one(users, {
-    fields: [users.updated_by],
+    fields: [users.updatedBy],
     references: [users.id],
   }),
 }));
 
 export const tokens = pgTable('tokens', {
-  user_id: integer()
+  userId: integer('user_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
   token: varchar({ length: 64 }).notNull(),
-  created_at: timestamp({ withTimezone: true }).notNull().defaultNow(),
-  max_age: integer().notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  maxAge: integer('max_age').notNull(),
 });
 
 export const tokensRelations = relations(tokens, ({ one }) => ({
-  user: one(users, { fields: [tokens.user_id], references: [users.id] }),
+  user: one(users, { fields: [tokens.userId], references: [users.id] }),
 }));
 
 export const emailTemplates = pgTable('email_templates', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   subject: text().notNull(),
   body: text().notNull(),
-  created_at: timestamp({ withTimezone: true }).notNull().defaultNow(),
-  created_by: integer()
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  createdBy: integer('created_by')
     .notNull()
     .references(() => users.id),
-  updated_at: timestamp({ withTimezone: true }).$onUpdateFn(() => new Date()),
-  updated_by: integer().references(() => users.id),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).$onUpdateFn(
+    () => new Date(),
+  ),
+  updatedBy: integer('updated_by').references(() => users.id),
 });
 
 export const emailTemplatesRelations = relations(emailTemplates, ({ one }) => ({
-  created_by_user: one(users, {
-    fields: [emailTemplates.created_by],
+  createdByUser: one(users, {
+    fields: [emailTemplates.createdBy],
     references: [users.id],
   }),
-  updated_by_user: one(users, {
-    fields: [emailTemplates.updated_by],
+  updatedByUser: one(users, {
+    fields: [emailTemplates.updatedBy],
     references: [users.id],
   }),
 }));
 
 export const emails = pgTable('emails', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  template_id: integer()
+  templateId: integer('template_id')
     .notNull()
     .references(() => emailTemplates.id),
   vars: json(),
-  created_at: timestamp({ withTimezone: true }).notNull().defaultNow(),
-  created_by: integer()
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  createdBy: integer('created_by')
     .notNull()
     .references(() => users.id),
-  updated_at: timestamp({ withTimezone: true }).$onUpdateFn(() => new Date()),
-  updated_by: integer().references(() => users.id),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).$onUpdateFn(
+    () => new Date(),
+  ),
+  updatedBy: integer('updated_by').references(() => users.id),
 });
 
 export const emailsRelations = relations(emails, ({ one }) => ({
   template: one(emailTemplates, {
-    fields: [emails.template_id],
+    fields: [emails.templateId],
     references: [emailTemplates.id],
   }),
   created_by_user: one(users, {
-    fields: [emails.created_by],
+    fields: [emails.createdBy],
     references: [users.id],
   }),
   updated_by_user: one(users, {
-    fields: [emails.updated_by],
+    fields: [emails.updatedBy],
     references: [users.id],
   }),
 }));

@@ -24,7 +24,7 @@ export async function getUserForRequest(
   const cookieHeader = request.headers.get('Cookie');
   if (cookieHeader) {
     const cookie = parse(cookieHeader);
-    const cookieToken = cookie['accessToken'];
+    const cookieToken = cookie.accessToken;
     if (typeof cookieToken === 'string') {
       return getUserForToken(cookieToken);
     }
@@ -46,15 +46,15 @@ async function getUserForToken(token: string): Promise<User> {
   }
 
   const now = new Date();
-  const createdAt = new Date(record.created_at);
+  const createdAt = new Date(record.createdAt);
   const diff = Math.abs(now.getTime() - createdAt.getTime());
   const minutes = Math.floor(diff / 60_000);
-  if (minutes > record.max_age) {
+  if (minutes > record.maxAge) {
     throw new AuthError('Token invalid or expired');
   }
 
   return {
-    id: record.user_id,
+    id: record.userId,
     email: record.user.email,
   };
 }

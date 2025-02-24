@@ -50,7 +50,7 @@ export async function signup(request: SignupRequest): Promise<SignupResult> {
       .insert(users)
       .values({
         email: request.email,
-        password_hash: hash,
+        passwordHash: hash,
       })
       .returning({
         id: users.id,

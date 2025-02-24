@@ -28,7 +28,7 @@ export async function login(request: LoginRequest): Promise<LoginResult> {
     const user = await db.query.users.findFirst({
       columns: {
         id: true,
-        password_hash: true,
+        passwordHash: true,
       },
       where: eq(users.email, request.email),
     });
@@ -44,7 +44,7 @@ export async function login(request: LoginRequest): Promise<LoginResult> {
 
     const validPassword = await validateHash(
       `${request.email}${request.password}`,
-      user.password_hash,
+      user.passwordHash,
     );
 
     if (!validPassword) {

@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { db } from '../db';
-import { AuthError, InputError } from '../errors';
+import { InputError } from '../errors';
 import { users } from '../db/schema';
 import { createHash } from './hash';
 import { signup } from './signup';
@@ -44,8 +44,8 @@ test('Throw on mismatched passwords', async () => {
 test('Throw on existing', async () => {
   const email = 'user@example.com';
   const password = 'password';
-  const password_hash = await createHash(`${email}${password}`);
-  await db.insert(users).values({ email, password_hash });
+  const passwordHash = await createHash(`${email}${password}`);
+  await db.insert(users).values({ email, passwordHash });
 
   await expect(() =>
     signup({ email, password: 'password', confirmPassword: 'password' }),
