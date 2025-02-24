@@ -14,3 +14,8 @@ export const db = drizzle({
   client: pool,
   schema,
 });
+
+export type DatabaseType = typeof db;
+export type TransactionType = Parameters<
+  Parameters<DatabaseType['transaction']>[0]
+>[0];

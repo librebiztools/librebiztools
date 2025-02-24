@@ -46,27 +46,30 @@ export async function signup(request: SignupRequest): Promise<SignupResult> {
   const hash = await createHash(`${request.email}${request.password}`);
 
   try {
-    const userRows = await db
-      .insert(users)
-      .values({
-        email: request.email,
-        passwordHash: hash,
-      })
-      .returning({
-        id: users.id,
-      });
+    const email = request.email;
+    return await db.transaction(async (tx) => {
+      const userRows = await tx
+        .insert(users)
+        .values({
+          email,
+          passwordHash: hash,
+        })
+        .returning({
+          id: users.id,
+        });
 
-    if (!userRows || userRows.length === 0) {
-      throw new Error('Failed to insert user record');
-    }
+      if (!userRows || userRows.length === 0) {
+        throw new Error('Failed to insert user record');
+      }
 
-    const user = userRows[0];
+      const user = userRows[0];
 
-    const token = await createToken(user.id);
+      const token = await createToken(user.id, tx);
 
-    return {
-      token,
-    };
+      return {
+        token,
+      };
+    });
   } catch (err) {
     console.error('Failed to signup new user', err);
     throw new ApiError();

@@ -1,12 +1,15 @@
 import { randomBytes } from 'node:crypto';
 import config from '../config';
-import { db } from '../db';
+import { db, type TransactionType } from '../db';
 import { tokens } from '../db/schema';
 
-export async function createToken(userId: number): Promise<string> {
+export async function createToken(
+  userId: number,
+  transaction?: TransactionType,
+): Promise<string> {
   const token = randomBytes(32).toString('hex');
 
-  const rows = await db
+  const rows = await (transaction || db)
     .insert(tokens)
     .values({
       userId,
