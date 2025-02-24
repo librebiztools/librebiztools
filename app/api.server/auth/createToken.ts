@@ -1,16 +1,19 @@
-import { randomBytes } from 'crypto';
-import { db } from '../db';
-import { tokens } from '../db/schema';
+import { randomBytes } from 'node:crypto';
 import config from '../config';
+import { db, type TransactionType } from '../db';
+import { tokens } from '../db/schema';
 
-export async function createToken(userId: number): Promise<string> {
+export async function createToken(
+  userId: number,
+  transaction?: TransactionType,
+): Promise<string> {
   const token = randomBytes(32).toString('hex');
 
-  const rows = await db
+  const rows = await (transaction || db)
     .insert(tokens)
     .values({
-      user_id: userId,
-      max_age: config.SESSION_TIMEOUT_MINUTES * 60,
+      userId,
+      maxAge: config.SESSION_TIMEOUT_MINUTES * 60,
       token,
     })
     .returning({

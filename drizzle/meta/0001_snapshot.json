@@ -1,6 +1,6 @@
 {
-  "id": "11861458-6474-4746-8465-0715e2aec62f",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "340a89c0-4e15-41f3-ac13-586899c77eb1",
+  "prevId": "11861458-6474-4746-8465-0715e2aec62f",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -296,6 +296,13 @@
           "type": "varchar(254)",
           "primaryKey": false,
           "notNull": true
+        },
+        "email_verified": {
+          "name": "email_verified",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
         },
         "email_verification_code": {
           "name": "email_verification_code",

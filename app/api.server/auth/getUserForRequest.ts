@@ -1,9 +1,9 @@
-import { db } from '../db';
 import { eq } from 'drizzle-orm';
+import type { User } from '~/api/user';
+import { db } from '../db';
 import { tokens } from '../db/schema';
 import { AuthError } from '../errors';
-import { parse } from 'cookie';
-import type { User } from '~/api/user';
+import { getSession } from '../session';
 
 export async function getUserForRequest(
   request: Request,
@@ -21,13 +21,10 @@ export async function getUserForRequest(
     );
   }
 
-  const cookieHeader = request.headers.get('Cookie');
-  if (cookieHeader) {
-    const cookie = parse(cookieHeader);
-    const cookieToken = cookie['accessToken'];
-    if (typeof cookieToken === 'string') {
-      return getUserForToken(cookieToken);
-    }
+  const session = await getSession(request.headers.get('Cookie'));
+  const cookieToken = session.get('accessToken');
+  if (cookieToken) {
+    return getUserForToken(cookieToken);
   }
 
   return null;
@@ -46,15 +43,15 @@ async function getUserForToken(token: string): Promise<User> {
   }
 
   const now = new Date();
-  const createdAt = new Date(record.created_at);
+  const createdAt = new Date(record.createdAt);
   const diff = Math.abs(now.getTime() - createdAt.getTime());
   const minutes = Math.floor(diff / 60_000);
-  if (minutes > record.max_age) {
+  if (minutes > record.maxAge) {
     throw new AuthError('Token invalid or expired');
   }
 
   return {
-    id: record.user_id,
+    id: record.userId,
     email: record.user.email,
   };
 }

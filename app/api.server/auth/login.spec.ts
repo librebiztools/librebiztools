@@ -1,9 +1,9 @@
 import { expect, test } from 'vitest';
-import { login } from './login';
 import { db } from '../db';
-import { AuthError, InputError } from '../errors';
 import { users } from '../db/schema';
+import { AuthError, InputError } from '../errors';
 import { createHash } from './hash';
+import { login } from './login';
 
 test('Throw on missing email', async () => {
   await expect(() =>
@@ -26,8 +26,8 @@ test('Throw on non-existing email', async () => {
 test('Throw on invalid password', async () => {
   const email = 'user@example.com';
   const password = 'password';
-  const password_hash = await createHash(`${email}${password}`);
-  await db.insert(users).values({ email, password_hash });
+  const passwordHash = await createHash(`${email}${password}`);
+  await db.insert(users).values({ email, passwordHash });
 
   await expect(() => login({ email, password: 'wrong' })).rejects.toThrow(
     AuthError,
@@ -37,8 +37,8 @@ test('Throw on invalid password', async () => {
 test('Return token on valid login', async () => {
   const email = 'user@example.com';
   const password = 'password';
-  const password_hash = await createHash(`${email}${password}`);
-  await db.insert(users).values({ email, password_hash });
+  const passwordHash = await createHash(`${email}${password}`);
+  await db.insert(users).values({ email, passwordHash });
 
   const result = await login({ email, password });
   expect(result.token).toBeDefined();

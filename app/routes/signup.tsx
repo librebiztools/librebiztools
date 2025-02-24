@@ -1,8 +1,9 @@
 import { useMemo } from 'react';
-import type { Route } from './+types/signup';
-import { data, Form, Link, redirect } from 'react-router';
-import { createCookie, signup } from '~/api.server/auth';
+import { Form, Link, data, redirect } from 'react-router';
+import { signup } from '~/api.server/auth';
 import { ApiError } from '~/api.server/errors';
+import type { Route } from './+types/signup';
+import { commitSession, getSession } from '~/api.server/session';
 
 export function meta() {
   return [{ title: 'libreBizTools Signup' }];
@@ -14,19 +15,23 @@ export async function action({ request }: Route.ActionArgs) {
   const password = formData.get('password')?.toString();
   const confirmPassword = formData.get('confirm-password')?.toString();
 
+  const session = await getSession(request.headers.get('Cookie'));
+
   try {
     const result = await signup({ email, password, confirmPassword });
+    session.set('accessToken', result.token);
+
     return redirect('/', {
       headers: {
-        'Set-Cookie': createCookie(result.token),
+        'Set-Cookie': await commitSession(session),
       },
     });
   } catch (err) {
     if (err instanceof ApiError) {
       return data({ message: err.message }, { status: err.code });
-    } else {
-      throw err;
     }
+
+    throw err;
   }
 }
 
@@ -81,6 +86,7 @@ export default function Signup({ actionData }: Route.ComponentProps) {
                     fill="none"
                     viewBox="0 0 24 24"
                   >
+                    <title>Error</title>
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"

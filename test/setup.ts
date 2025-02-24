@@ -1,17 +1,19 @@
-import { PGlite } from '@electric-sql/pglite';
-import { drizzle } from 'drizzle-orm/pglite';
 import { afterAll, afterEach, beforeEach, vi } from 'vitest';
 
-import * as schema from '~/api.server/db/schema';
 import { applyMigrations } from '~/api.server/db/migrate';
 import { reset } from '~/api.server/db/reset';
 
 // Replace the database with a new in-memory database
-vi.mock('~/api.server/db', async (importOriginal) => {
+vi.mock('~/api.server/db', async () => {
+  const { PGlite } = await import('@electric-sql/pglite');
+  const { drizzle } = await import('drizzle-orm/pglite');
+  const { db: actual } =
+    await vi.importActual<typeof import('~/api.server/db')>('~/api.server/db');
+  const schema = await import('~/api.server/db/schema');
   const client = new PGlite();
   const db = drizzle(client, { schema });
   return {
-    ...(await importOriginal<typeof import('app/api.server/db')>()),
+    ...actual,
     db,
   };
 });
@@ -27,4 +29,4 @@ afterEach(async () => {
 });
 
 // Free up resources after all tests are done
-afterAll(async () => { });
+afterAll(async () => {});

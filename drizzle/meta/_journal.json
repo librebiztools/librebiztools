@@ -5,8 +5,22 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1738276245753,
-      "tag": "0000_mighty_surge",
+      "when": 1740416342152,
+      "tag": "0000_far_big_bertha",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1740416885833,
+      "tag": "0001_fast_ultimates",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1740419793389,
+      "tag": "0002_cloudy_doctor_octopus",
       "breakpoints": true
     }
   ]

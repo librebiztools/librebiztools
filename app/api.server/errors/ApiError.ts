@@ -4,7 +4,7 @@ export class ApiError extends Error {
    */
   code: number;
 
-  constructor(msg: string = 'An unknown error has occured') {
+  constructor(msg = 'An unknown error has occured') {
     super(msg);
     this.code = 500;
     Object.setPrototypeOf(this, ApiError.prototype);
