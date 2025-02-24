@@ -1,9 +1,9 @@
 import { eq } from 'drizzle-orm';
 import { db } from '../db';
-import { ApiError, InputError } from '../errors';
 import { users } from '../db/schema';
-import { createHash } from './hash';
+import { ApiError, InputError } from '../errors';
 import { createToken } from './createToken';
+import { createHash } from './hash';
 
 interface SignupRequest {
   email: string | null | undefined;

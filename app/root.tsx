@@ -11,10 +11,10 @@ import {
 } from 'react-router';
 
 import type { Route } from './+types/root';
-import stylesheet from './app.css?url';
 import { getUserForRequest } from './api.server/auth';
 import { ApiError } from './api.server/errors';
 import type { User } from './api/user';
+import stylesheet from './app.css?url';
 
 export const links: Route.LinksFunction = () => [
   { rel: 'stylesheet', href: stylesheet },
@@ -27,9 +27,8 @@ export async function loader({ request }: Route.LoaderArgs) {
   } catch (err) {
     if (err instanceof ApiError) {
       return data({ message: err.message }, { status: err.code });
-    } else {
-      throw err;
     }
+    throw err;
   }
 }
 

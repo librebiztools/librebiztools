@@ -1,8 +1,8 @@
-import { createCookie, login } from '~/api.server/auth';
-import type { Route } from './+types/login';
-import { data, Form, Link, redirect } from 'react-router';
-import { ApiError } from '~/api.server/errors';
 import { useMemo } from 'react';
+import { Form, Link, data, redirect } from 'react-router';
+import { createCookie, login } from '~/api.server/auth';
+import { ApiError } from '~/api.server/errors';
+import type { Route } from './+types/login';
 
 export function meta() {
   return [{ title: 'libreBizTools Login' }];
@@ -63,7 +63,9 @@ export default function Login({ actionData }: Route.ComponentProps) {
                 placeholder="Password"
               />
               <div>
-                <a className="link link-hover">Forgot password?</a>
+                <a className="link link-hover" href="#forgot-password">
+                  Forgot password?
+                </a>
               </div>
               {errorMessage && (
                 <div role="alert" className="alert alert-error">
@@ -73,6 +75,7 @@ export default function Login({ actionData }: Route.ComponentProps) {
                     fill="none"
                     viewBox="0 0 24 24"
                   >
+                    <title>Error</title>
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"

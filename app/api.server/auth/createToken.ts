@@ -1,7 +1,7 @@
 import { randomBytes } from 'node:crypto';
+import config from '../config';
 import { db } from '../db';
 import { tokens } from '../db/schema';
-import config from '../config';
 
 export async function createToken(userId: number): Promise<string> {
   const token = randomBytes(32).toString('hex');

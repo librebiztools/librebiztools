@@ -1,10 +1,10 @@
 import { eq } from 'drizzle-orm';
 import { db } from '../db';
-import { ApiError, InputError } from '../errors';
 import { users } from '../db/schema';
+import { ApiError, InputError } from '../errors';
 import { AuthError } from '../errors/AuthError';
-import { validateHash } from './hash';
 import { createToken } from './createToken';
+import { validateHash } from './hash';
 
 interface LoginRequest {
   email: string | null | undefined;

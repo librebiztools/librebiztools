@@ -1,9 +1,9 @@
 import { expect, test } from 'vitest';
-import { login } from './login';
 import { db } from '../db';
-import { AuthError, InputError } from '../errors';
 import { users } from '../db/schema';
+import { AuthError, InputError } from '../errors';
 import { createHash } from './hash';
+import { login } from './login';
 
 test('Throw on missing email', async () => {
   await expect(() =>

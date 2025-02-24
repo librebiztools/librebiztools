@@ -1,9 +1,9 @@
-import { db } from '../db';
+import { parse } from 'cookie';
 import { eq } from 'drizzle-orm';
+import type { User } from '~/api/user';
+import { db } from '../db';
 import { tokens } from '../db/schema';
 import { AuthError } from '../errors';
-import { parse } from 'cookie';
-import type { User } from '~/api/user';
 
 export async function getUserForRequest(
   request: Request,

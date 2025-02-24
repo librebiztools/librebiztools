@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
-import type { Route } from './+types/signup';
-import { data, Form, Link, redirect } from 'react-router';
+import { Form, Link, data, redirect } from 'react-router';
 import { createCookie, signup } from '~/api.server/auth';
 import { ApiError } from '~/api.server/errors';
+import type { Route } from './+types/signup';
 
 export function meta() {
   return [{ title: 'libreBizTools Signup' }];
@@ -81,6 +81,7 @@ export default function Signup({ actionData }: Route.ComponentProps) {
                     fill="none"
                     viewBox="0 0 24 24"
                   >
+                    <title>Error</title>
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"

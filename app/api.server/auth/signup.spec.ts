@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { db } from '../db';
-import { InputError } from '../errors';
 import { users } from '../db/schema';
+import { InputError } from '../errors';
 import { createHash } from './hash';
 import { signup } from './signup';
 
