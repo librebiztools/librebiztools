@@ -1,9 +1,13 @@
+import { destroySession, getSession } from '~/api.server/session';
+import type { Route } from './+types/logout';
 import { redirect } from 'react-router';
 
-export function loader() {
+export async function loader({ request }: Route.LoaderArgs) {
+  const session = await getSession(request.headers.get('Cookie'));
+
   return redirect('/', {
     headers: {
-      'Set-Cookie': 'accessToken=; expires=Thu, 01 Jan 1970 00:00:00 GMT',
+      'Set-Cookie': await destroySession(session),
     },
   });
 }

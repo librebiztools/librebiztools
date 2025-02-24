@@ -15,6 +15,8 @@ import { getUserForRequest } from './api.server/auth';
 import { ApiError } from './api.server/errors';
 import type { User } from './api/user';
 import stylesheet from './app.css?url';
+import { commitSession, getSession } from './api.server/session';
+import { useEffect, useState } from 'react';
 
 export const links: Route.LinksFunction = () => [
   { rel: 'stylesheet', href: stylesheet },
@@ -23,7 +25,20 @@ export const links: Route.LinksFunction = () => [
 export async function loader({ request }: Route.LoaderArgs) {
   try {
     const user = await getUserForRequest(request);
-    return data(user);
+    const session = await getSession(request.headers.get('Cookie'));
+
+    return data(
+      {
+        error: session.get('error'),
+        message: session.get('message'),
+        user,
+      },
+      {
+        headers: {
+          'Set-Cookie': await commitSession(session),
+        },
+      },
+    );
   } catch (err) {
     if (err instanceof ApiError) {
       return data({ message: err.message }, { status: err.code });
@@ -32,8 +47,40 @@ export async function loader({ request }: Route.LoaderArgs) {
   }
 }
 
+type RootLoaderData = {
+  user: User | null;
+  error: string | undefined;
+  message: string | undefined;
+};
+
+const Toast = ({
+  message,
+  type,
+  onClose,
+}: { message: string; type: 'info' | 'error'; onClose: () => void }) => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onClose();
+    }, 3000); // Auto-dismiss after 3 seconds
+
+    return () => clearTimeout(timer); // Cleanup timer on unmount
+  }, [onClose]);
+
+  return (
+    <div className="toast toast-top top-10 animate-fade shadow-lg">
+      <div className={`alert alert-${type}`}>
+        <span>{message}</span>
+      </div>
+    </div>
+  );
+};
+
 export function Layout({ children }: { children: React.ReactNode }) {
-  const user = useRouteLoaderData<User | null>('root');
+  const data = useRouteLoaderData<RootLoaderData | undefined>('root');
+  const user = data?.user;
+  const [errorToast, setErrorToast] = useState(data?.error);
+  const [messageToast, setMessageToast] = useState(data?.message);
+
   return (
     <html lang="en">
       <head>
@@ -67,6 +114,20 @@ export function Layout({ children }: { children: React.ReactNode }) {
             </ul>
           </div>
         </div>
+        {errorToast && (
+          <Toast
+            type="error"
+            message={errorToast}
+            onClose={() => setErrorToast('')}
+          />
+        )}
+        {messageToast && (
+          <Toast
+            type="info"
+            message={messageToast}
+            onClose={() => setMessageToast('')}
+          />
+        )}
         {children}
         <ScrollRestoration />
         <Scripts />

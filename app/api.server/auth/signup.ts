@@ -49,13 +49,13 @@ export async function signup(request: SignupRequest): Promise<SignupResult> {
 
   try {
     const email = request.email;
-    const emailVerificationCode = randomBytes(32).toString('hex');
+    const emailConfirmationCode = randomBytes(32).toString('hex');
     return await db.transaction(async (tx) => {
       const userRows = await tx
         .insert(users)
         .values({
           email,
-          emailVerificationCode,
+          emailConfirmationCode,
           passwordHash: hash,
         })
         .returning({
@@ -70,7 +70,7 @@ export async function signup(request: SignupRequest): Promise<SignupResult> {
 
       const token = await createToken(user.id, tx);
 
-      await sendSignupEmail(email, emailVerificationCode, tx);
+      await sendSignupEmail(email, emailConfirmationCode, tx);
 
       return {
         token,

@@ -6,12 +6,14 @@ import {
   text,
   timestamp,
   varchar,
+  boolean,
 } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   email: varchar({ length: 254 }).notNull().unique(),
-  emailVerificationCode: varchar('email_verification_code', { length: 100 }),
+  emailConfirmed: boolean('email_confirmed').notNull().default(false),
+  emailConfirmationCode: varchar('email_confirmation_code', { length: 100 }),
   passwordHash: varchar('password_hash', { length: 100 }).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()

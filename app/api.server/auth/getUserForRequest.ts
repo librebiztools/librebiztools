@@ -1,9 +1,9 @@
-import { parse } from 'cookie';
 import { eq } from 'drizzle-orm';
 import type { User } from '~/api/user';
 import { db } from '../db';
 import { tokens } from '../db/schema';
 import { AuthError } from '../errors';
+import { getSession } from '../session';
 
 export async function getUserForRequest(
   request: Request,
@@ -21,13 +21,10 @@ export async function getUserForRequest(
     );
   }
 
-  const cookieHeader = request.headers.get('Cookie');
-  if (cookieHeader) {
-    const cookie = parse(cookieHeader);
-    const cookieToken = cookie.accessToken;
-    if (typeof cookieToken === 'string') {
-      return getUserForToken(cookieToken);
-    }
+  const session = await getSession(request.headers.get('Cookie'));
+  const cookieToken = session.get('accessToken');
+  if (cookieToken) {
+    return getUserForToken(cookieToken);
   }
 
   return null;
