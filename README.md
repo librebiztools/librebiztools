@@ -17,13 +17,13 @@ npm install
 Start the Postgres database with docker compose
 
 ```bash
-docker compose up
+docker compose up -d
 ```
 
-Apply the database migrations
+Reset the database
 
 ```bash
-npm run db:migrate
+npm run db:reset
 ```
 
 Start the development server with HMR:
