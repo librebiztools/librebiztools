@@ -17,6 +17,7 @@
     "@electric-sql/pglite": "^0.2.16",
     "@node-rs/argon2": "^2.0.2",
     "@react-router/express": "^7.2.0",
+    "@react-router/fs-routes": "^7.2.0",
     "@react-router/node": "^7.2.0",
     "@react-router/serve": "^7.2.0",
     "cookie": "^1.0.2",
