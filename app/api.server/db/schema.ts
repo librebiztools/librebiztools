@@ -108,3 +108,8 @@ export const emailsRelations = relations(emails, ({ one }) => ({
     references: [users.id],
   }),
 }));
+
+export const meta = pgTable('meta', {
+  key: text().primaryKey(),
+  value: text(),
+});
