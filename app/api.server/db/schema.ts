@@ -4,6 +4,7 @@ import {
   integer,
   json,
   pgTable,
+  primaryKey,
   text,
   timestamp,
   varchar,
@@ -25,7 +26,7 @@ export const users = pgTable('users', {
   updatedBy: integer('updated_by'),
 });
 
-export const usersRelations = relations(users, ({ one }) => ({
+export const usersRelations = relations(users, ({ one, many }) => ({
   created_by_user: one(users, {
     fields: [users.createdBy],
     references: [users.id],
@@ -34,6 +35,7 @@ export const usersRelations = relations(users, ({ one }) => ({
     fields: [users.updatedBy],
     references: [users.id],
   }),
+  workspaces: many(workspaces),
 }));
 
 export const tokens = pgTable('tokens', {
@@ -113,3 +115,59 @@ export const meta = pgTable('meta', {
   key: text().primaryKey(),
   value: text(),
 });
+
+export const workspaces = pgTable('workspaces', {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  name: varchar({ length: 30 }).notNull().unique(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  createdBy: integer('created_by')
+    .notNull()
+    .references(() => users.id),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).$onUpdateFn(
+    () => new Date(),
+  ),
+  updatedBy: integer('updated_by').references(() => users.id),
+});
+
+export const workspacesRelations = relations(workspaces, ({ one }) => ({
+  createdByUser: one(users, {
+    fields: [workspaces.createdBy],
+    references: [users.id],
+  }),
+}));
+
+export const roles = pgTable('roles', {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  workspaceId: integer('workspace_id')
+    .notNull()
+    .references(() => workspaces.id),
+  role: varchar({ length: 30 }).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  createdBy: integer('created_by')
+    .notNull()
+    .references(() => users.id),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).$onUpdateFn(
+    () => new Date(),
+  ),
+  updatedBy: integer('updated_by').references(() => users.id),
+});
+
+export const userWorkspaceRoles = pgTable(
+  'user_workspace_roles',
+  {
+    userId: integer('user_id')
+      .notNull()
+      .references(() => users.id),
+    workspaceId: integer('workspace_id')
+      .notNull()
+      .references(() => workspaces.id),
+    roleId: integer('role_id')
+      .notNull()
+      .references(() => roles.id),
+  },
+  (table) => [primaryKey({ columns: [table.userId, table.workspaceId] })],
+);
