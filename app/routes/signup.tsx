@@ -4,7 +4,7 @@ import { signup } from '~/api.server/auth';
 import { ApiError } from '~/api.server/errors';
 import { commitSession, getSession } from '~/api.server/session';
 import config from '~/config';
-import { slugify } from '~/utils';
+import { slugify } from '~/utils/slugify';
 import type { Route } from './+types/signup';
 
 export function meta() {
