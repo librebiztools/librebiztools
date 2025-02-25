@@ -1,4 +1,4 @@
-import { slugify } from '~/utils';
+import { slugify } from '~/utils/slugify';
 import config from '../config';
 import type { TransactionType } from '../db';
 import { roles, userWorkspaceRoles, workspaces } from '../db/schema';
