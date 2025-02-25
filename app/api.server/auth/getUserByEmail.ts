@@ -1,6 +1,6 @@
+import { eq } from 'drizzle-orm';
 import type { User } from '~/api/user';
 import { db } from '../db';
-import { eq } from 'drizzle-orm';
 import { users } from '../db/schema';
 
 export async function getUserByEmail(email: string): Promise<User | null> {

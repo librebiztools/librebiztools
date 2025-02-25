@@ -1,8 +1,8 @@
 import { redirect } from 'react-router';
-import type { Route } from './+types/confirm-email';
-import { commitSession, getSession } from '~/api.server/session';
 import { confirmEmail } from '~/api.server/auth';
 import { ApiError } from '~/api.server/errors';
+import { commitSession, getSession } from '~/api.server/session';
+import type { Route } from './+types/confirm-email';
 
 export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);

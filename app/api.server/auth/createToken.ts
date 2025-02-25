@@ -1,6 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import config from '../config';
-import { db, type TransactionType } from '../db';
+import { type TransactionType, db } from '../db';
 import { tokens } from '../db/schema';
 
 export async function createToken(

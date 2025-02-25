@@ -1,11 +1,11 @@
+import { faker } from '@faker-js/faker';
+import { eq } from 'drizzle-orm';
 import { expect, test } from 'vitest';
 import { db } from '../db';
 import { users } from '../db/schema';
 import { AuthError, InputError } from '../errors';
 import { confirmEmail } from './confirmEmail';
-import { eq } from 'drizzle-orm';
 import { signup } from './signup';
-import { faker } from '@faker-js/faker';
 
 const PASSWORD = 'password';
 

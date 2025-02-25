@@ -10,13 +10,13 @@ import {
   useRouteLoaderData,
 } from 'react-router';
 
+import { useEffect, useState } from 'react';
 import type { Route } from './+types/root';
 import { getUserForRequest } from './api.server/auth';
 import { ApiError } from './api.server/errors';
+import { commitSession, getSession } from './api.server/session';
 import type { User } from './api/user';
 import stylesheet from './app.css?url';
-import { commitSession, getSession } from './api.server/session';
-import { useEffect, useState } from 'react';
 
 export const links: Route.LinksFunction = () => [
   { rel: 'stylesheet', href: stylesheet },

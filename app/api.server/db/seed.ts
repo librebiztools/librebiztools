@@ -1,7 +1,7 @@
+import { eq } from 'drizzle-orm';
+import { forgotPassword, signup } from './data/emailTemplates';
 import { db } from './index';
 import { emailTemplates, meta } from './schema';
-import { signup, forgotPassword } from './data/emailTemplates';
-import { eq } from 'drizzle-orm';
 
 export async function seed() {
   const seeded = await db.query.meta.findFirst({

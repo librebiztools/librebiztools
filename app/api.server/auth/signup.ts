@@ -1,11 +1,11 @@
+import { randomBytes } from 'node:crypto';
 import { eq } from 'drizzle-orm';
-import { db, type TransactionType } from '../db';
+import config from '../config';
+import { type TransactionType, db } from '../db';
 import { emails, users } from '../db/schema';
 import { ApiError, InputError } from '../errors';
 import { createToken } from './createToken';
 import { createHash } from './hash';
-import config from '../config';
-import { randomBytes } from 'node:crypto';
 
 interface SignupRequest {
   email: string | null | undefined;
