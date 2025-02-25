@@ -3,13 +3,13 @@ import { createRequestHandler } from '@react-router/express';
 import express from 'express';
 import { setupDb } from './setup-db';
 
-await setupDb();
-
 declare module 'react-router' {
   interface AppLoadContext {
     VALUE_FROM_EXPRESS: string;
   }
 }
+
+setupDb();
 
 export const app = express();
 
