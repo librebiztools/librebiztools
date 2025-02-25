@@ -1,7 +1,8 @@
 import { eq } from 'drizzle-orm';
-import type { User } from '~/api/user';
 import { db } from '../db';
 import { users } from '../db/schema';
+
+type User = typeof users.$inferSelect;
 
 export async function getUserByEmail(email: string): Promise<User | null> {
   const row = await db.query.users.findFirst({

@@ -53,5 +53,6 @@ async function getUserForToken(token: string): Promise<User> {
   return {
     id: record.userId,
     email: record.user.email,
+    emailConfirmed: record.user.emailConfirmed,
   };
 }
