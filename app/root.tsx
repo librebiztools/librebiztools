@@ -17,6 +17,7 @@ import { ApiError } from './api.server/errors';
 import { commitSession, getSession } from './api.server/session';
 import type { User } from './api/user';
 import stylesheet from './app.css?url';
+import { EmailConfirmationAlert } from './components/email-confirmation-alert';
 
 export const links: Route.LinksFunction = () => [
   { rel: 'stylesheet', href: stylesheet },
@@ -31,7 +32,14 @@ export async function loader({ request }: Route.LoaderArgs) {
       {
         error: session.get('error'),
         message: session.get('message'),
-        user,
+        user: user
+          ? {
+              id: user.id,
+              name: user.name,
+              email: user.email,
+              emailConfirmed: user.emailConfirmed,
+            }
+          : null,
       },
       {
         headers: {
@@ -90,6 +98,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
+        {user && !user.emailConfirmed && <EmailConfirmationAlert />}
         <div className="navbar bg-base-100 shadow-sm">
           <div className="flex-1">
             <Link className="btn btn-ghost text-xl" to="/">

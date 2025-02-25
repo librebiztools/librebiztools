@@ -7,6 +7,7 @@ import { ApiError, InputError } from '../errors';
 import { createToken } from './createToken';
 import { createWorkspace } from './createWorkspace';
 import { createHash } from './hash';
+import { sendSignupEmail } from './sendSignupEmail';
 
 interface SignupRequest {
   name: string | null | undefined;
@@ -123,18 +124,4 @@ export async function signup(request: SignupRequest): Promise<SignupResult> {
     console.error('Failed to signup new user', err);
     throw new ApiError();
   }
-}
-
-async function sendSignupEmail(
-  email: string,
-  code: string,
-  tx: TransactionType,
-) {
-  await tx.insert(emails).values({
-    to: email,
-    templateId: 1,
-    vars: {
-      confirmation_link: `${config.BASE_URL}/confirm-email?email=${encodeURIComponent(email)}&code=${encodeURIComponent(code)}`,
-    },
-  });
 }
