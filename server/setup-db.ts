@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
-import { db } from '~/api.server/db';
 import config from '~/api.server/config';
+import { db } from '~/api.server/db';
 import { applyMigrations } from '~/api.server/db/migrate';
 import { seed } from '~/api.server/db/seed';
 

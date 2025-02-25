@@ -1,8 +1,8 @@
 import { eq } from 'drizzle-orm';
 import { db } from '../db';
 import { users } from '../db/schema';
-import { getUserByEmail } from './getUserByEmail';
 import { AuthError, InputError } from '../errors';
+import { getUserByEmail } from './getUserByEmail';
 
 interface ConfirmEmailRequest {
   email: string | null | undefined;

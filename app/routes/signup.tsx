@@ -2,8 +2,8 @@ import { useMemo } from 'react';
 import { Form, Link, data, redirect } from 'react-router';
 import { signup } from '~/api.server/auth';
 import { ApiError } from '~/api.server/errors';
-import type { Route } from './+types/signup';
 import { commitSession, getSession } from '~/api.server/session';
+import type { Route } from './+types/signup';
 
 export function meta() {
   return [{ title: 'libreBizTools Signup' }];

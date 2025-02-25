@@ -1,10 +1,10 @@
+import { faker } from '@faker-js/faker';
 import { expect, test } from 'vitest';
 import { db } from '../db';
 import { users } from '../db/schema';
 import { AuthError, InputError } from '../errors';
 import { createHash } from './hash';
 import { login } from './login';
-import { faker } from '@faker-js/faker';
 
 const PASSWORD = 'password';
 
