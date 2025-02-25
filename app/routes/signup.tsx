@@ -1,8 +1,10 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Form, Link, data, redirect } from 'react-router';
 import { signup } from '~/api.server/auth';
 import { ApiError } from '~/api.server/errors';
 import { commitSession, getSession } from '~/api.server/session';
+import config from '~/config';
+import { slugify } from '~/utils';
 import type { Route } from './+types/signup';
 
 export function meta() {
@@ -11,6 +13,8 @@ export function meta() {
 
 export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
+  const name = formData.get('name')?.toString();
+  const workspaceName = formData.get('workspace-name')?.toString();
   const email = formData.get('email')?.toString();
   const password = formData.get('password')?.toString();
   const confirmPassword = formData.get('confirm-password')?.toString();
@@ -18,7 +22,14 @@ export async function action({ request }: Route.ActionArgs) {
   const session = await getSession(request.headers.get('Cookie'));
 
   try {
-    const result = await signup({ email, password, confirmPassword });
+    const result = await signup({
+      name,
+      workspaceName,
+      email,
+      password,
+      confirmPassword,
+    });
+
     session.set('accessToken', result.token);
 
     return redirect('/', {
@@ -41,6 +52,14 @@ export default function Signup({ actionData }: Route.ComponentProps) {
     [actionData],
   );
 
+  const [workspaceName, setWorkspaceName] = useState('');
+  const [workspaceSlug, setWorkspaceSlug] = useState('');
+
+  const onWorkspaceNameChange = useCallback((value: string) => {
+    setWorkspaceName(value);
+    setWorkspaceSlug(slugify(value, config.WORKSPACE.MAX_SLUG_LENGTH));
+  }, []);
+
   return (
     <div className="flex min-h-screen flex-col items-center bg-base-200 pt-4">
       <div className="card w-full max-w-sm flex-shrink-0 bg-base-100 shadow-2xl">
@@ -48,6 +67,39 @@ export default function Signup({ actionData }: Route.ComponentProps) {
           <h2 className="card-title">Signup</h2>
           <Form method="post">
             <fieldset className="fieldset">
+              <label htmlFor="name" className="fieldset-label">
+                Your name
+              </label>
+              <input
+                id="name"
+                name="name"
+                type="text"
+                className="input"
+                placeholder="Your name"
+                maxLength={config.USER.MAX_NAME_LENGTH}
+              />
+              <label htmlFor="workspace-name" className="fieldset-label">
+                Workspace name
+              </label>
+              {workspaceSlug.length >= 3 && (
+                <em title="Workspace URL Preview">
+                  {window.location.protocol}
+                  {'//'}
+                  {window.location.host}
+                  /workspaces/{workspaceSlug}
+                </em>
+              )}
+              <input
+                id="workspace-name"
+                name="workspace-name"
+                type="text"
+                className="input"
+                placeholder="Workspace name"
+                maxLength={config.WORKSPACE.MAX_NAME_LENGTH}
+                value={workspaceName}
+                onChange={(e) => onWorkspaceNameChange(e.target.value)}
+              />
+
               <label htmlFor="email" className="fieldset-label">
                 Email
               </label>

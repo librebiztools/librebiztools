@@ -31,6 +31,8 @@ test('Throw on invalid code', async () => {
   const email = faker.internet.email();
 
   await signup({
+    name: faker.person.firstName(),
+    workspaceName: faker.company.name(),
     email,
     password: PASSWORD,
     confirmPassword: PASSWORD,
@@ -45,6 +47,8 @@ test('Mark user confirmed with correct code', async () => {
   const email = faker.internet.email();
 
   await signup({
+    name: faker.person.firstName(),
+    workspaceName: faker.company.name(),
     email,
     password: PASSWORD,
     confirmPassword: PASSWORD,
@@ -71,6 +75,8 @@ test('Throw on already confirmed', async () => {
   const email = faker.internet.email();
 
   await signup({
+    name: faker.person.firstName(),
+    workspaceName: faker.company.name(),
     email,
     password: PASSWORD,
     confirmPassword: PASSWORD,

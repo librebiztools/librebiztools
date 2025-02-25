@@ -1,10 +1,8 @@
 import { faker } from '@faker-js/faker';
 import { expect, test } from 'vitest';
-import { db } from '../db';
-import { users } from '../db/schema';
 import { AuthError, InputError } from '../errors';
-import { createHash } from './hash';
 import { login } from './login';
+import { signup } from './signup';
 
 const PASSWORD = 'password';
 
@@ -28,8 +26,14 @@ test('Throw on non-existing email', async () => {
 
 test('Throw on invalid password', async () => {
   const email = faker.internet.email();
-  const passwordHash = await createHash(`${email}${PASSWORD}`);
-  await db.insert(users).values({ email, passwordHash });
+
+  await signup({
+    name: faker.person.firstName(),
+    workspaceName: faker.company.name(),
+    email,
+    password: PASSWORD,
+    confirmPassword: PASSWORD,
+  });
 
   await expect(() => login({ email, password: 'wrong' })).rejects.toThrow(
     AuthError,
@@ -38,8 +42,14 @@ test('Throw on invalid password', async () => {
 
 test('Return token on valid login', async () => {
   const email = faker.internet.email();
-  const passwordHash = await createHash(`${email}${PASSWORD}`);
-  await db.insert(users).values({ email, passwordHash });
+
+  await signup({
+    name: faker.person.firstName(),
+    workspaceName: faker.company.name(),
+    email,
+    password: PASSWORD,
+    confirmPassword: PASSWORD,
+  });
 
   const result = await login({ email, password: PASSWORD });
   expect(result.token).toBeDefined();

@@ -9,9 +9,11 @@ import {
   timestamp,
   varchar,
 } from 'drizzle-orm/pg-core';
+import config from '~/api.server/config';
 
 export const users = pgTable('users', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  name: varchar({ length: config.USER.MAX_NAME_LENGTH }).notNull(),
   email: varchar({ length: 254 }).notNull().unique(),
   emailConfirmed: boolean('email_confirmed').notNull().default(false),
   emailConfirmationCode: varchar('email_confirmation_code', { length: 100 }),
@@ -36,6 +38,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
     references: [users.id],
   }),
   workspaces: many(workspaces),
+  roles: many(userWorkspaceRoles),
 }));
 
 export const tokens = pgTable('tokens', {
@@ -118,7 +121,12 @@ export const meta = pgTable('meta', {
 
 export const workspaces = pgTable('workspaces', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  name: varchar({ length: 30 }).notNull().unique(),
+  name: varchar({ length: config.WORKSPACE.MAX_NAME_LENGTH })
+    .notNull()
+    .unique(),
+  slug: varchar({ length: config.WORKSPACE.MAX_SLUG_LENGTH })
+    .notNull()
+    .unique(),
   createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
     .defaultNow(),
@@ -131,11 +139,12 @@ export const workspaces = pgTable('workspaces', {
   updatedBy: integer('updated_by').references(() => users.id),
 });
 
-export const workspacesRelations = relations(workspaces, ({ one }) => ({
+export const workspacesRelations = relations(workspaces, ({ one, many }) => ({
   createdByUser: one(users, {
     fields: [workspaces.createdBy],
     references: [users.id],
   }),
+  roles: many(userWorkspaceRoles),
 }));
 
 export const roles = pgTable('roles', {
@@ -143,7 +152,7 @@ export const roles = pgTable('roles', {
   workspaceId: integer('workspace_id')
     .notNull()
     .references(() => workspaces.id),
-  role: varchar({ length: 30 }).notNull(),
+  role: varchar({ length: config.ROLE.MAX_NAME_LENGTH }).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
     .defaultNow(),
@@ -168,6 +177,26 @@ export const userWorkspaceRoles = pgTable(
     roleId: integer('role_id')
       .notNull()
       .references(() => roles.id),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    createdBy: integer('created_by')
+      .notNull()
+      .references(() => users.id),
   },
   (table) => [primaryKey({ columns: [table.userId, table.workspaceId] })],
+);
+
+export const userWorkspaceRolesRelations = relations(
+  userWorkspaceRoles,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [userWorkspaceRoles.userId],
+      references: [users.id],
+    }),
+    workspace: one(workspaces, {
+      fields: [userWorkspaceRoles.workspaceId],
+      references: [workspaces.id],
+    }),
+  }),
 );
