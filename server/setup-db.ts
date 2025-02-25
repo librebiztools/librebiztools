@@ -21,6 +21,8 @@ export async function setupDb() {
   console.log('Seeding data...');
 
   await seed();
+
+  console.log('Database seeded!');
 }
 
 async function isDbUp(attempts = 3, timeout = 2000): Promise<boolean> {

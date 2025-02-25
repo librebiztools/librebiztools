@@ -4,14 +4,11 @@ import { signup, forgotPassword } from './data/emailTemplates';
 import { eq } from 'drizzle-orm';
 
 export async function seed() {
-  console.info('Seeding database..');
-
   const seeded = await db.query.meta.findFirst({
     where: eq(meta.key, 'seeded'),
   });
 
   if (seeded?.value === 'true') {
-    console.info('Database already seeded!');
     return;
   }
 
@@ -30,6 +27,4 @@ export async function seed() {
     key: 'seeded',
     value: 'true',
   });
-
-  console.info('Database seeded!');
 }
