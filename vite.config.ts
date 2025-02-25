@@ -3,7 +3,14 @@ import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
-export default defineConfig({
+export default defineConfig(({ isSsrBuild }) => ({
+  build: {
+    rollupOptions: isSsrBuild
+      ? {
+        input: './server/app.ts',
+      }
+      : undefined,
+  },
   plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
   optimizeDeps: {
     exclude: ['@node-rs/argon2'],
@@ -14,4 +21,4 @@ export default defineConfig({
   test: {
     setupFiles: ['./test/setup.ts'],
   },
-});
+}));

@@ -5,19 +5,22 @@ import { InputError } from '../errors';
 import { createHash } from './hash';
 import { signup } from './signup';
 import { and, eq } from 'drizzle-orm';
+import { faker } from '@faker-js/faker';
+
+const PASSWORD = 'PASSWORD';
 
 test('Throw on missing email', async () => {
   await expect(() =>
-    signup({ email: '', password: 'password', confirmPassword: 'password' }),
+    signup({ email: '', password: PASSWORD, confirmPassword: PASSWORD }),
   ).rejects.toThrow(InputError);
 });
 
 test('Throw on missing password', async () => {
   await expect(() =>
     signup({
-      email: 'user@example.com',
+      email: faker.internet.email(),
       password: '',
-      confirmPassword: 'password',
+      confirmPassword: PASSWORD,
     }),
   ).rejects.toThrow(InputError);
 });
@@ -25,8 +28,8 @@ test('Throw on missing password', async () => {
 test('Throw on missing confirm password', async () => {
   await expect(() =>
     signup({
-      email: 'user@example.com',
-      password: 'password',
+      email: faker.internet.email(),
+      password: PASSWORD,
       confirmPassword: '',
     }),
   ).rejects.toThrow(InputError);
@@ -35,37 +38,40 @@ test('Throw on missing confirm password', async () => {
 test('Throw on mismatched passwords', async () => {
   await expect(() =>
     signup({
-      email: 'unique@example.com',
-      password: 'password',
-      confirmPassword: 'passWORD',
+      email: faker.internet.email(),
+      password: PASSWORD,
+      confirmPassword: 'wrong',
     }),
   ).rejects.toThrow(InputError);
 });
 
 test('Throw on existing', async () => {
-  const email = 'user@example.com';
-  const password = 'password';
-  const passwordHash = await createHash(`${email}${password}`);
+  const email = faker.internet.email();
+  const passwordHash = await createHash(`${email}${PASSWORD}`);
   await db.insert(users).values({ email, passwordHash });
 
   await expect(() =>
-    signup({ email, password: 'password', confirmPassword: 'password' }),
+    signup({ email, password: PASSWORD, confirmPassword: PASSWORD }),
   ).rejects.toThrow(InputError);
 });
 
 test('Return token on valid signup', async () => {
-  const email = 'user@example.com';
-  const password = 'password';
-
-  const result = await signup({ email, password, confirmPassword: password });
+  const result = await signup({
+    email: faker.internet.email(),
+    password: PASSWORD,
+    confirmPassword: PASSWORD,
+  });
   expect(result.token).toBeDefined();
 });
 
 test('Send signup email on valid signup', async () => {
-  const email = 'user@example.com';
-  const password = 'password';
+  const email = faker.internet.email();
 
-  await signup({ email, password, confirmPassword: password });
+  await signup({
+    email,
+    password: PASSWORD,
+    confirmPassword: PASSWORD,
+  });
 
   const row = await db.query.emails.findFirst({
     where: and(eq(emails.to, email), eq(emails.templateId, 1)),

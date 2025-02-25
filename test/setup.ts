@@ -1,7 +1,7 @@
-import { afterAll, afterEach, beforeEach, vi } from 'vitest';
+import { beforeAll, vi } from 'vitest';
 
 import { applyMigrations } from '~/api.server/db/migrate';
-import { reset } from '~/api.server/db/reset';
+import { seed } from '~/api.server/db/seed';
 
 // Replace the database with a new in-memory database
 vi.mock('~/api.server/db', async () => {
@@ -18,15 +18,7 @@ vi.mock('~/api.server/db', async () => {
   };
 });
 
-// Apply migrations before each test
-beforeEach(async () => {
+beforeAll(async () => {
   await applyMigrations();
+  await seed();
 });
-
-// Clean up the database after each test
-afterEach(async () => {
-  await reset();
-});
-
-// Free up resources after all tests are done
-afterAll(async () => {});

@@ -20,6 +20,7 @@ const { getSession, commitSession, destroySession } =
       maxAge: config.SESSION_TIMEOUT_MINUTES * 60,
       sameSite: 'lax',
       secure: true,
+      secrets: ['s3cr3t'], // Just so the cookie is "signed"
     },
   });
 
