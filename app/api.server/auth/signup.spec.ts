@@ -4,20 +4,51 @@ import { expect, test } from 'vitest';
 import { db } from '../db';
 import { emails, users } from '../db/schema';
 import { InputError } from '../errors';
-import { createHash } from './hash';
 import { signup } from './signup';
 
 const PASSWORD = 'PASSWORD';
 
 test('Throw on missing email', async () => {
   await expect(() =>
-    signup({ email: '', password: PASSWORD, confirmPassword: PASSWORD }),
+    signup({
+      name: faker.person.firstName(),
+      workspaceName: faker.company.name(),
+      email: '',
+      password: PASSWORD,
+      confirmPassword: PASSWORD,
+    }),
+  ).rejects.toThrow(InputError);
+});
+
+test('Throw on missing name', async () => {
+  await expect(() =>
+    signup({
+      name: '',
+      workspaceName: faker.company.name(),
+      email: faker.internet.email(),
+      password: PASSWORD,
+      confirmPassword: PASSWORD,
+    }),
+  ).rejects.toThrow(InputError);
+});
+
+test('Throw on missing workspace name', async () => {
+  await expect(() =>
+    signup({
+      name: faker.person.firstName(),
+      workspaceName: '',
+      email: faker.internet.email(),
+      password: PASSWORD,
+      confirmPassword: PASSWORD,
+    }),
   ).rejects.toThrow(InputError);
 });
 
 test('Throw on missing password', async () => {
   await expect(() =>
     signup({
+      name: faker.person.firstName(),
+      workspaceName: faker.company.name(),
       email: faker.internet.email(),
       password: '',
       confirmPassword: PASSWORD,
@@ -28,6 +59,8 @@ test('Throw on missing password', async () => {
 test('Throw on missing confirm password', async () => {
   await expect(() =>
     signup({
+      name: faker.person.firstName(),
+      workspaceName: faker.company.name(),
       email: faker.internet.email(),
       password: PASSWORD,
       confirmPassword: '',
@@ -38,6 +71,8 @@ test('Throw on missing confirm password', async () => {
 test('Throw on mismatched passwords', async () => {
   await expect(() =>
     signup({
+      name: faker.person.firstName(),
+      workspaceName: faker.company.name(),
       email: faker.internet.email(),
       password: PASSWORD,
       confirmPassword: 'wrong',
@@ -45,18 +80,55 @@ test('Throw on mismatched passwords', async () => {
   ).rejects.toThrow(InputError);
 });
 
-test('Throw on existing', async () => {
+test('Throw on existing user', async () => {
+  const name = faker.person.firstName();
   const email = faker.internet.email();
-  const passwordHash = await createHash(`${email}${PASSWORD}`);
-  await db.insert(users).values({ email, passwordHash });
+
+  await signup({
+    name,
+    workspaceName: faker.company.name(),
+    email,
+    password: PASSWORD,
+    confirmPassword: PASSWORD,
+  });
 
   await expect(() =>
-    signup({ email, password: PASSWORD, confirmPassword: PASSWORD }),
+    signup({
+      name,
+      workspaceName: faker.company.name(),
+      email,
+      password: PASSWORD,
+      confirmPassword: PASSWORD,
+    }),
+  ).rejects.toThrow(InputError);
+});
+
+test('Throw on existing workspace', async () => {
+  const workspaceName = faker.company.name();
+
+  await signup({
+    name: faker.person.firstName(),
+    workspaceName,
+    email: faker.internet.email(),
+    password: PASSWORD,
+    confirmPassword: PASSWORD,
+  });
+
+  await expect(() =>
+    signup({
+      name: faker.person.firstName(),
+      workspaceName: workspaceName,
+      email: faker.internet.email(),
+      password: PASSWORD,
+      confirmPassword: PASSWORD,
+    }),
   ).rejects.toThrow(InputError);
 });
 
 test('Return token on valid signup', async () => {
   const result = await signup({
+    name: faker.person.firstName(),
+    workspaceName: faker.company.name(),
     email: faker.internet.email(),
     password: PASSWORD,
     confirmPassword: PASSWORD,
@@ -68,6 +140,8 @@ test('Send signup email on valid signup', async () => {
   const email = faker.internet.email();
 
   await signup({
+    name: faker.person.firstName(),
+    workspaceName: faker.company.name(),
     email,
     password: PASSWORD,
     confirmPassword: PASSWORD,
@@ -78,4 +152,27 @@ test('Send signup email on valid signup', async () => {
   });
 
   expect(row).toBeDefined();
+});
+
+test('Create workspace with default roles on valid signup', async () => {
+  const email = faker.internet.email();
+
+  await signup({
+    name: faker.person.firstName(),
+    workspaceName: faker.company.name(),
+    email,
+    password: PASSWORD,
+    confirmPassword: PASSWORD,
+  });
+
+  const row = await db.query.users.findFirst({
+    where: eq(users.email, email),
+    with: {
+      workspaces: true,
+      roles: true,
+    },
+  });
+
+  expect(row?.workspaces?.length).toBe(1);
+  expect(row?.roles?.length).toBe(1);
 });
