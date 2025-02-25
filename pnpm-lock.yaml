@@ -32,6 +32,9 @@ importers:
       drizzle-orm:
         specifier: ^0.39.3
         version: 0.39.3(@electric-sql/pglite@0.2.17)(@types/pg@8.11.11)(pg@8.13.3)
+      express:
+        specifier: ^4.21.2
+        version: 4.21.2
       isbot:
         specifier: ^5
         version: 5.1.23
