@@ -1,9 +1,10 @@
 import { eq } from 'drizzle-orm';
-import type { User } from '~/api/user';
 import { db } from '../db';
-import { tokens } from '../db/schema';
+import { tokens, type users } from '../db/schema';
 import { AuthError } from '../errors';
 import { getSession } from '../session';
+
+type User = typeof users.$inferSelect;
 
 export async function getUserForRequest(
   request: Request,
@@ -50,8 +51,5 @@ async function getUserForToken(token: string): Promise<User> {
     throw new AuthError('Token invalid or expired');
   }
 
-  return {
-    id: record.userId,
-    email: record.user.email,
-  };
+  return record.user;
 }
