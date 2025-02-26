@@ -21,7 +21,7 @@ export async function action({ request }: Route.ActionArgs) {
     session.set('accessToken', result.token);
     session.set('userId', result.userId);
 
-    const url = returnUrl || `/workspaces/${result.slug}`;
+    const url = returnUrl || '/workspaces';
     return redirect(url, {
       headers: {
         'Set-Cookie': await commitSession(session),
