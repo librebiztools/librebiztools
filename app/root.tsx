@@ -114,7 +114,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     <summary>{user.email}</summary>
                     <ul>
                       <li>
-                        <Link to="/logout">Logout</Link>
+                        <form method="post" action="/logout">
+                          <button type="submit" className="cursor-pointer">
+                            Logout
+                          </button>
+                        </form>
                       </li>
                     </ul>
                   </details>
