@@ -18,6 +18,7 @@ interface SignupRequest {
 }
 
 export interface SignupResult {
+  userId: number;
   token: string;
   slug: string;
 }
@@ -118,6 +119,7 @@ export async function signup(request: SignupRequest): Promise<SignupResult> {
       const token = await createToken(user.id, tx);
 
       return {
+        userId: user.id,
         token,
         slug,
       };

@@ -3,7 +3,7 @@ import { db } from '../db';
 import { users } from '../db/schema';
 import { ApiError, InputError } from '../errors';
 import { AuthError } from '../errors/AuthError';
-import { getWorkspaceForUser } from '../workspace';
+import { getWorkspacesForUser } from '../workspace';
 import { createToken } from './createToken';
 import { validateHash } from './hash';
 
@@ -13,6 +13,7 @@ interface LoginRequest {
 }
 
 export interface LoginResult {
+  userId: number;
   token: string;
   slug: string;
 }
@@ -55,10 +56,11 @@ export async function login(request: LoginRequest): Promise<LoginResult> {
 
     const token = await createToken(user.id);
 
-    const workspaces = await getWorkspaceForUser({ userId: user.id });
+    const workspaces = await getWorkspacesForUser({ userId: user.id });
 
     // TODO: workspace selector for multiple workspaces
     return {
+      userId: user.id,
       token,
       slug: workspaces[0]?.slug,
     };

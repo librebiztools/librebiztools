@@ -2,6 +2,7 @@ import { createCookieSessionStorage } from 'react-router';
 import config from './config';
 
 type SessionData = {
+  userId: number;
   accessToken: string;
 };
 
@@ -10,6 +11,8 @@ type SessionFlashData = {
   message: string;
   // Displays on site as an "error" toast
   error: string;
+  // Path to return to after login
+  returnUrl: string;
 };
 
 const { getSession, commitSession, destroySession } =

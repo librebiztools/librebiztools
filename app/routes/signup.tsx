@@ -31,6 +31,7 @@ export async function action({ request }: Route.ActionArgs) {
     });
 
     session.set('accessToken', result.token);
+    session.set('userId', result.userId);
 
     return redirect(`/workspaces/${result.slug}`, {
       headers: {
