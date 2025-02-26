@@ -19,6 +19,7 @@ interface SignupRequest {
 
 export interface SignupResult {
   token: string;
+  slug: string;
 }
 
 export async function signup(request: SignupRequest): Promise<SignupResult> {
@@ -107,13 +108,18 @@ export async function signup(request: SignupRequest): Promise<SignupResult> {
 
       const user = userRows[0];
 
-      await createWorkspace({ userId: user.id, name: workspaceName, tx });
+      const { slug } = await createWorkspace({
+        userId: user.id,
+        name: workspaceName,
+        tx,
+      });
       await sendSignupEmail(email, emailConfirmationCode, tx);
 
       const token = await createToken(user.id, tx);
 
       return {
         token,
+        slug,
       };
     });
   } catch (err) {

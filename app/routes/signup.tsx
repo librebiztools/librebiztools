@@ -32,7 +32,7 @@ export async function action({ request }: Route.ActionArgs) {
 
     session.set('accessToken', result.token);
 
-    return redirect('/', {
+    return redirect(`/workspaces/${result.slug}`, {
       headers: {
         'Set-Cookie': await commitSession(session),
       },

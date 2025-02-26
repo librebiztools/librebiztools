@@ -11,7 +11,7 @@ export async function createWorkspace({
   userId: number;
   name: string;
   tx: TransactionType;
-}) {
+}): Promise<{ slug: string }> {
   const slug = slugify(name, config.WORKSPACE.MAX_SLUG_LENGTH);
   const workspaceRows = await tx
     .insert(workspaces)
@@ -56,4 +56,6 @@ export async function createWorkspace({
     roleId: adminRole.id,
     createdBy: userId,
   });
+
+  return { slug };
 }
