@@ -4,7 +4,7 @@ export type EmailTemplate = {
 };
 
 export const signup = {
-  subject: 'Welcome to LibreBizTools! Confirm Your Email',
+  subject: 'Welcome to Tickflo! Confirm Your Email',
   body: `Hello,
 
 Thank you for signing up! Please confirm your email address by clicking the link below:
@@ -14,7 +14,7 @@ Thank you for signing up! Please confirm your email address by clicking the link
 If you did not sign up, you can ignore this email.
 
 Best regards,  
-LibreBizTools Team`,
+Tickflo Team`,
 } satisfies EmailTemplate;
 
 export const forgotPassword = {
@@ -28,7 +28,7 @@ We received a request to reset your password. Click the link below to set a new 
 If you did not request this, you can ignore this email.
 
 Best regards,  
-LibreBizTools Team`,
+Tickflo Team`,
 } satisfies EmailTemplate;
 
 export const teamMemberInvitation = {
@@ -42,7 +42,7 @@ You’ve been invited to join {{team_name}}. Click the link below to create your
 If you weren’t expecting this invitation, you can ignore this email.
 
 Best regards,  
-LibreBizTools Team`,
+Tickflo Team`,
 } satisfies EmailTemplate;
 
 export const addedToWorkspace = {
@@ -54,5 +54,5 @@ You’ve been added to the {{workspace_name}} workspace. Click the link below to
 {{workspace_link}}
 
 Best regards,  
-LibreBizTools Team`,
+Tickflo Team`,
 } satisfies EmailTemplate;

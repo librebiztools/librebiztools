@@ -8,7 +8,7 @@ import { slugify } from '~/utils/slugify';
 import type { Route } from './+types/signup';
 
 export function meta() {
-  return [{ title: 'libreBizTools Signup' }];
+  return [{ title: 'Tickflo Signup' }];
 }
 
 export async function action({ request }: Route.ActionArgs) {

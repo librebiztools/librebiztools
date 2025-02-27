@@ -1,6 +1,7 @@
 {
-  "name": "librebiztools",
+  "name": "tickflo",
   "private": true,
+  "license": "AGPL-3.0-or-later",
   "type": "module",
   "scripts": {
     "build": "react-router build",

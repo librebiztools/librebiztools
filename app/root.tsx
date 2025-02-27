@@ -102,7 +102,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <div className="navbar bg-base-100 shadow-sm">
           <div className="flex-1">
             <Link className="btn btn-ghost text-xl" to="/">
-              libreBizTools
+              Tickflo
             </Link>
           </div>
           <div className="flex-none">
