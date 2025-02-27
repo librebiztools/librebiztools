@@ -14,11 +14,15 @@ export async function action({ request }: Route.ActionArgs) {
   const email = formData.get('email')?.toString();
   const password = formData.get('password')?.toString();
   const session = await getSession(request.headers.get('Cookie'));
+  const returnUrl = session.get('returnUrl');
 
   try {
     const result = await login({ email, password });
     session.set('accessToken', result.token);
-    return redirect('/', {
+    session.set('userId', result.userId);
+
+    const url = returnUrl || '/workspaces';
+    return redirect(url, {
       headers: {
         'Set-Cookie': await commitSession(session),
       },

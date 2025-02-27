@@ -20,6 +20,7 @@ export async function action({ request }: Route.ActionArgs) {
   const confirmPassword = formData.get('confirm-password')?.toString();
 
   const session = await getSession(request.headers.get('Cookie'));
+  const returnUrl = session.get('returnUrl');
 
   try {
     const result = await signup({
@@ -31,8 +32,10 @@ export async function action({ request }: Route.ActionArgs) {
     });
 
     session.set('accessToken', result.token);
+    session.set('userId', result.userId);
 
-    return redirect('/', {
+    const url = returnUrl || '/workspaces';
+    return redirect(url, {
       headers: {
         'Set-Cookie': await commitSession(session),
       },

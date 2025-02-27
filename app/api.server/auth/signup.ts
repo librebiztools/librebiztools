@@ -1,8 +1,8 @@
 import { randomBytes } from 'node:crypto';
 import { eq } from 'drizzle-orm';
 import config from '../config';
-import { type TransactionType, db } from '../db';
-import { emails, users, workspaces } from '../db/schema';
+import { db } from '../db';
+import { users, workspaces } from '../db/schema';
 import { ApiError, InputError } from '../errors';
 import { createToken } from './createToken';
 import { createWorkspace } from './createWorkspace';
@@ -18,6 +18,7 @@ interface SignupRequest {
 }
 
 export interface SignupResult {
+  userId: number;
   token: string;
 }
 
@@ -107,12 +108,17 @@ export async function signup(request: SignupRequest): Promise<SignupResult> {
 
       const user = userRows[0];
 
-      await createWorkspace({ userId: user.id, name: workspaceName, tx });
+      await createWorkspace({
+        userId: user.id,
+        name: workspaceName,
+        tx,
+      });
       await sendSignupEmail(email, emailConfirmationCode, tx);
 
       const token = await createToken(user.id, tx);
 
       return {
+        userId: user.id,
         token,
       };
     });

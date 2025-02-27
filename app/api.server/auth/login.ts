@@ -12,6 +12,7 @@ interface LoginRequest {
 }
 
 export interface LoginResult {
+  userId: number;
   token: string;
 }
 
@@ -54,6 +55,7 @@ export async function login(request: LoginRequest): Promise<LoginResult> {
     const token = await createToken(user.id);
 
     return {
+      userId: user.id,
       token,
     };
   } catch (err) {
