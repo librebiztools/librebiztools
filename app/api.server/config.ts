@@ -15,9 +15,9 @@ interface Config {
 }
 
 const config = {
-  POSTGRES_USER: process.env.POSTGRES_USER || 'librebiztools',
+  POSTGRES_USER: process.env.POSTGRES_USER || 'tickflo',
   POSTGRES_PASSWORD: process.env.POSTGRES_PASSWORD || 'password',
-  POSTGRES_DB: process.env.POSTGRES_DB || 'librebiztools',
+  POSTGRES_DB: process.env.POSTGRES_DB || 'tickflo',
   POSTGRES_HOST: process.env.POSTGRES_HOST || 'localhost',
   SESSION_TIMEOUT_MINUTES: 20,
   BASE_URL: process.env.BASE_URL || 'http://localhost:3000',

@@ -87,7 +87,7 @@ export const emails = pgTable('emails', {
     .notNull()
     .references(() => emailTemplates.id),
   vars: json(),
-  from: varchar({ length: 254 }).notNull().default('noreply@librebiztools.com'),
+  from: varchar({ length: 254 }).notNull().default('noreply@tickflo.co'),
   to: varchar({ length: 254 }).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()

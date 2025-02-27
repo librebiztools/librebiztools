@@ -6,7 +6,7 @@ import { commitSession, getSession } from '~/api.server/session';
 import type { Route } from './+types/login';
 
 export function meta() {
-  return [{ title: 'libreBizTools Login' }];
+  return [{ title: 'Tickflo Login' }];
 }
 
 export async function action({ request }: Route.ActionArgs) {
