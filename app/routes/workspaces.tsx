@@ -1,5 +1,6 @@
 import { redirect } from 'react-router';
-import { commitSession, getSession } from '~/api.server/session';
+import { getSession } from '~/api.server/session';
+import { errorRedirect, loginRedirect } from '~/api.server/utils';
 import { getWorkspacesForUser } from '~/api.server/workspace';
 import type { Route } from './+types/workspaces';
 
@@ -14,22 +15,12 @@ export async function loader({ request }: Route.LoaderArgs) {
   const session = await getSession(request.headers.get('Cookie'));
   const userId = session.get('userId');
   if (!userId) {
-    session.flash('error', 'You must be logged in to access that page');
-    return redirect('/login', {
-      headers: {
-        'Set-Cookie': await commitSession(session),
-      },
-    });
+    return loginRedirect(session);
   }
 
   const workspaces = await getWorkspacesForUser({ userId });
   if (!workspaces.length) {
-    session.flash('error', "You don't belong to any workspaces");
-    return redirect('/', {
-      headers: {
-        'Set-Cookie': await commitSession(session),
-      },
-    });
+    return errorRedirect(session, "You don't belong to any workspaces");
   }
 
   return redirect(`/workspaces/${workspaces[0].slug}`);

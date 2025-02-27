@@ -20,6 +20,14 @@
     "enabled": true,
     "rules": {
       "recommended": true,
+      "correctness": {
+        "noUnusedImports": {
+          "level": "warn"
+        },
+        "noUnusedVariables": {
+          "level": "warn"
+        }
+      },
       "nursery": {
         "useSortedClasses": {
           "level": "warn",

@@ -1,12 +1,12 @@
 import { createCookieSessionStorage } from 'react-router';
 import config from './config';
 
-type SessionData = {
+export type SessionData = {
   userId: number;
   accessToken: string;
 };
 
-type SessionFlashData = {
+export type SessionFlashData = {
   // Displays on site as a "success" toast
   message: string;
   // Displays on site as an "error" toast
