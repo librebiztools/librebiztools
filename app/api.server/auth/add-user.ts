@@ -4,8 +4,8 @@ import config from '../config';
 import { db } from '../db';
 import { roles, userWorkspaceRoles, users } from '../db/schema';
 import { InputError } from '../errors';
-import { getUserByEmail } from './getUserByEmail';
-import { getWorkspaceBySlug } from './getWorkspaceBySlug';
+import { getUserByEmail } from './get-user-by-email';
+import { getWorkspaceBySlug } from './get-workspace-by-slug';
 
 // TODO: permissions
 

@@ -4,10 +4,10 @@ import config from '../config';
 import { db } from '../db';
 import { users, workspaces } from '../db/schema';
 import { ApiError, InputError } from '../errors';
-import { createToken } from './createToken';
-import { createWorkspace } from './createWorkspace';
+import { createToken } from './create-token';
+import { createWorkspace } from './create-workspace';
 import { createHash } from './hash';
-import { sendSignupEmail } from './sendSignupEmail';
+import { sendSignupEmail } from './send-signup-email';
 
 interface SignupRequest {
   name: string | null | undefined;

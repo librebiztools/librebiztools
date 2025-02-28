@@ -3,7 +3,7 @@ import { db } from '../db';
 import { users } from '../db/schema';
 import { ApiError, InputError } from '../errors';
 import { AuthError } from '../errors/AuthError';
-import { createToken } from './createToken';
+import { createToken } from './create-token';
 import { validateHash } from './hash';
 
 interface LoginRequest {
