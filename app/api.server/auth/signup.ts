@@ -24,7 +24,7 @@ export interface SignupResult {
 
 export async function signup(request: SignupRequest): Promise<SignupResult> {
   const name = request.name?.toString().toLowerCase().trim();
-  const email = request.name?.toString().toLowerCase().trim();
+  const email = request.email?.toString().toLowerCase().trim();
   const workspaceName = request.workspaceName?.toString().trim();
 
   if (
@@ -85,7 +85,7 @@ export async function signup(request: SignupRequest): Promise<SignupResult> {
     throw new InputError('A workspace with that name already exists');
   }
 
-  const hash = await createHash(`${request.email}${request.password}`);
+  const hash = await createHash(`${email}${request.password}`);
 
   try {
     const emailConfirmationCode = randomBytes(32).toString('hex');
