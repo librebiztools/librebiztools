@@ -23,7 +23,7 @@ export interface SignupResult {
 }
 
 export async function signup(request: SignupRequest): Promise<SignupResult> {
-  const name = request.name?.toString().toLowerCase().trim();
+  const name = request.name?.toString().trim();
   const email = request.email?.toString().toLowerCase().trim();
   const workspaceName = request.workspaceName?.toString().trim();
 
