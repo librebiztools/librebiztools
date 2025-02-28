@@ -37,6 +37,8 @@ export async function loader({ request }: Route.LoaderArgs) {
         error: session.get('error'),
         message: session.get('message'),
         theme: preferences.get('theme') || 'light',
+        dismissedEmailConfirmation:
+          session.get('dismissedEmailConfirmation') || false,
         user: user
           ? {
               id: user.id,
@@ -65,6 +67,7 @@ type RootLoaderData = {
   error: string | undefined;
   message: string | undefined;
   theme: 'light' | 'dark';
+  dismissedEmailConfirmation: boolean;
 };
 
 const Toast = ({
@@ -104,7 +107,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        {user && !user.emailConfirmed && <EmailConfirmationAlert />}
+        {user && !user.emailConfirmed && !data?.dismissedEmailConfirmation && (
+          <EmailConfirmationAlert />
+        )}
         <div className="navbar bg-base-100 shadow-sm">
           <div className="flex-1">
             <Link className="btn btn-ghost text-xl" to="/">

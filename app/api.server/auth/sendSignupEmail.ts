@@ -11,7 +11,7 @@ export async function sendSignupEmail(
     to: email,
     templateId: 1,
     vars: {
-      confirmation_link: `${config.BASE_URL}/confirm-email?email=${encodeURIComponent(email)}&code=${encodeURIComponent(code)}`,
+      confirmation_link: `${config.BASE_URL}/email-confirmation/confirm?email=${encodeURIComponent(email)}&code=${encodeURIComponent(code)}`,
     },
   });
 }

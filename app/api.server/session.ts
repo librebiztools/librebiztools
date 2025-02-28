@@ -4,6 +4,7 @@ import config from './config';
 export type SessionData = {
   userId: number;
   accessToken: string;
+  dismissedEmailConfirmation: boolean;
 };
 
 export type SessionFlashData = {
