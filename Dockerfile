@@ -7,7 +7,7 @@ RUN npm install -g pnpm
 RUN pnpm install --frozen-lockfile
 
 COPY . . 
-RUN npm run build
+RUN pnpm build
 
 FROM node:22-alpine
 
@@ -23,4 +23,4 @@ COPY --from=builder /app/server.js ./server.js
 
 EXPOSE 3000
 
-CMD ["npm", "run", "start"]
+CMD ["pnpm", "start"]
