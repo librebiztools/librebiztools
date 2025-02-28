@@ -71,11 +71,15 @@ export async function addUser({
 
   const existing = await getUserByEmail(email);
   if (existing) {
-    await db.insert(userWorkspaceRoles).values({
-      userId,
-      workspaceId: workspace.id,
-      roleId: role.id,
-      createdBy: userId,
+    await db.transaction(async (tx) => {
+      await tx.insert(userWorkspaceRoles).values({
+        userId: existing.id,
+        workspaceId: workspace.id,
+        roleId: role.id,
+        createdBy: userId,
+      });
+
+      await sendInviteEmail({ userId: existing.id, slug, tx });
     });
   } else {
     const emailConfirmationCode = randomBytes(32).toString('hex');

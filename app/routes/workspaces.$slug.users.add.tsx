@@ -43,6 +43,8 @@ export async function action({ request, params }: Route.ActionArgs) {
     if (err instanceof ApiError) {
       return data({ error: err.message });
     }
+
+    throw err;
   }
 }
 

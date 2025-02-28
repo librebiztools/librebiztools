@@ -7,3 +7,6 @@ export * from './signup';
 export * from './get-roles';
 export * from './get-users';
 export * from './add-user';
+export * from './get-workspace-invites-for-user-id';
+export * from './accept-workspace-invite';
+export * from './decline-workspace-invite';

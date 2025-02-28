@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import config from '../config';
 import { type TransactionType, db } from '../db';
 import { userWorkspaceRoles, users, workspaces } from '../db/schema';
@@ -22,7 +22,13 @@ export async function sendInviteEmail({
       passwordHash: users.passwordHash,
     })
     .from(userWorkspaceRoles)
-    .innerJoin(workspaces, eq(workspaces.slug, slug))
+    .innerJoin(
+      workspaces,
+      and(
+        eq(workspaces.id, userWorkspaceRoles.workspaceId),
+        eq(workspaces.slug, slug),
+      ),
+    )
     .innerJoin(users, eq(users.id, userWorkspaceRoles.userId))
     .where(eq(userWorkspaceRoles.userId, userId));
 
@@ -45,7 +51,7 @@ export async function sendInviteEmail({
         slug,
       }),
       vars: {
-        accept_link: `${config.BASE_URL}/accept-invite?email=${encodeURIComponent(role.email)}`,
+        accept_link: `${config.BASE_URL}/accept-invite`,
       },
       tx,
     });
