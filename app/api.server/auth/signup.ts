@@ -2,7 +2,7 @@ import { randomBytes } from 'node:crypto';
 import { eq } from 'drizzle-orm';
 import config from '../config';
 import { db } from '../db';
-import { users, workspaces } from '../db/schema';
+import { userWorkspaceRoles, users, workspaces } from '../db/schema';
 import { ApiError, InputError } from '../errors';
 import { createToken } from './create-token';
 import { createWorkspace } from './create-workspace';
@@ -37,16 +37,6 @@ export async function signup(request: SignupRequest): Promise<SignupResult> {
     );
   }
 
-  if (
-    !workspaceName ||
-    workspaceName.length < config.WORKSPACE.MIN_NAME_LENGTH ||
-    workspaceName.length > config.WORKSPACE.MAX_NAME_LENGTH
-  ) {
-    throw new InputError(
-      `Workspace name must be between ${config.WORKSPACE.MIN_NAME_LENGTH} and ${config.WORKSPACE.MAX_NAME_LENGTH} characters in length`,
-    );
-  }
-
   if (!email) {
     throw new InputError('Email is required');
   }
@@ -66,12 +56,34 @@ export async function signup(request: SignupRequest): Promise<SignupResult> {
   const user = await db.query.users.findFirst({
     columns: {
       id: true,
+      passwordHash: true,
     },
     where: eq(users.email, email),
   });
 
+  const invited = user && !user.passwordHash;
+
+  if (invited) {
+    return signupInvitee({
+      userId: user.id,
+      email,
+      password: request.password,
+      name,
+    });
+  }
+
   if (user) {
     throw new InputError('An account with that email already exists');
+  }
+
+  if (
+    !workspaceName ||
+    workspaceName.length < config.WORKSPACE.MIN_NAME_LENGTH ||
+    workspaceName.length > config.WORKSPACE.MAX_NAME_LENGTH
+  ) {
+    throw new InputError(
+      `Workspace name must be between ${config.WORKSPACE.MIN_NAME_LENGTH} and ${config.WORKSPACE.MAX_NAME_LENGTH} characters in length`,
+    );
   }
 
   const workspace = await db.query.workspaces.findFirst({
@@ -130,4 +142,40 @@ export async function signup(request: SignupRequest): Promise<SignupResult> {
     console.error('Failed to signup new user', err);
     throw new ApiError();
   }
+}
+
+async function signupInvitee({
+  userId,
+  email,
+  name,
+  password,
+}: {
+  userId: number;
+  email: string;
+  name: string;
+  password: string;
+}): Promise<SignupResult> {
+  const hash = await createHash(`${email}${password}`);
+  return await db.transaction(async (tx) => {
+    await tx
+      .update(users)
+      .set({
+        name,
+        passwordHash: hash,
+        updatedBy: userId,
+      })
+      .where(eq(users.id, userId));
+
+    await tx
+      .update(userWorkspaceRoles)
+      .set({ accepted: true })
+      .where(eq(userWorkspaceRoles.userId, userId));
+
+    const token = await createToken(userId, tx);
+
+    return {
+      userId,
+      token,
+    };
+  });
 }

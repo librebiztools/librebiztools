@@ -45,7 +45,7 @@ export async function sendInviteEmail({
         slug,
       }),
       vars: {
-        accept_link: `${config.BASE_URL}/accept-invite?workspace=${encodeURIComponent(slug)}`,
+        accept_link: `${config.BASE_URL}/accept-invite?email=${encodeURIComponent(role.email)}`,
       },
       tx,
     });
@@ -57,7 +57,7 @@ export async function sendInviteEmail({
         slug,
       }),
       vars: {
-        accept_link: `${config.BASE_URL}/signup?workspace=${encodeURIComponent(slug)}`,
+        accept_link: `${config.BASE_URL}/signup?email=${encodeURIComponent(role.email)}`,
       },
       tx,
     });

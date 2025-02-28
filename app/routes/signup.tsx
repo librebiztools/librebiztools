@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Form, Link, data, redirect } from 'react-router';
-import { signup } from '~/api.server/auth';
+import { getUserByEmail, signup } from '~/api.server/auth';
 import { ApiError } from '~/api.server/errors';
 import { commitSession, getSession } from '~/api.server/session';
 import config from '~/config';
@@ -49,12 +49,35 @@ export async function action({ request }: Route.ActionArgs) {
   }
 }
 
-export default function Signup({ actionData }: Route.ComponentProps) {
+export async function loader({ request }: Route.LoaderArgs) {
+  const url = new URL(request.url);
+
+  const email = url.searchParams.get('email');
+  if (email) {
+    const user = await getUserByEmail(email);
+    if (user) {
+      return data({
+        invited: true,
+        email: user.email,
+        name: user.name,
+      });
+    }
+  }
+}
+
+export default function Signup({
+  actionData,
+  loaderData,
+}: Route.ComponentProps) {
   const errorMessage = useMemo(
     () => (actionData ? actionData.message : ''),
     [actionData],
   );
 
+  const invited = loaderData?.invited || false;
+
+  const [email, setEmail] = useState(loaderData?.email || '');
+  const [name, setName] = useState(loaderData?.name || '');
   const [workspaceName, setWorkspaceName] = useState('');
   const [workspaceSlug, setWorkspaceSlug] = useState('');
 
@@ -80,28 +103,34 @@ export default function Signup({ actionData }: Route.ComponentProps) {
                 className="input"
                 placeholder="Your name"
                 maxLength={config.USER.MAX_NAME_LENGTH}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
               />
-              <label htmlFor="workspace-name" className="fieldset-label">
-                Workspace name
-              </label>
-              {workspaceSlug.length >= 3 && (
-                <em title="Workspace URL Preview">
-                  {window.location.protocol}
-                  {'//'}
-                  {window.location.host}
-                  /workspaces/{workspaceSlug}
-                </em>
+              {!invited && (
+                <>
+                  <label htmlFor="workspace-name" className="fieldset-label">
+                    Workspace name
+                  </label>
+                  {workspaceSlug.length >= 3 && (
+                    <em title="Workspace URL Preview">
+                      {window.location.protocol}
+                      {'//'}
+                      {window.location.host}
+                      /workspaces/{workspaceSlug}
+                    </em>
+                  )}
+                  <input
+                    id="workspace-name"
+                    name="workspace-name"
+                    type="text"
+                    className="input"
+                    placeholder="Workspace name"
+                    maxLength={config.WORKSPACE.MAX_NAME_LENGTH}
+                    value={workspaceName}
+                    onChange={(e) => onWorkspaceNameChange(e.target.value)}
+                  />
+                </>
               )}
-              <input
-                id="workspace-name"
-                name="workspace-name"
-                type="text"
-                className="input"
-                placeholder="Workspace name"
-                maxLength={config.WORKSPACE.MAX_NAME_LENGTH}
-                value={workspaceName}
-                onChange={(e) => onWorkspaceNameChange(e.target.value)}
-              />
 
               <label htmlFor="email" className="fieldset-label">
                 Email
@@ -112,6 +141,8 @@ export default function Signup({ actionData }: Route.ComponentProps) {
                 type="email"
                 className="input"
                 placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
               <label htmlFor="password" className="fieldset-label">
                 Password
