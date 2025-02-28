@@ -46,7 +46,7 @@
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.1",
     "cross-env": "^7.0.3",
-    "daisyui": "^5.0.0-beta.4",
+    "daisyui": "^5.0.0-beta.9",
     "drizzle-kit": "^0.30.5",
     "lefthook": "^1.11.2",
     "tailwindcss": "^4.0.9",

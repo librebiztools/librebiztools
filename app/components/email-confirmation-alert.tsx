@@ -38,7 +38,7 @@ export function EmailConfirmationAlert() {
                 onClick={() => setVisible(false)}
               >
                 Dismiss
-              </button>
+              </button>{' '}
               <button
                 type="button"
                 className="btn btn-sm btn-primary"
