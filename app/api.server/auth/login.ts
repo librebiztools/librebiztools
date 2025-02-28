@@ -17,7 +17,8 @@ export interface LoginResult {
 }
 
 export async function login(request: LoginRequest): Promise<LoginResult> {
-  if (!request.email) {
+  const email = request?.email?.toString().toLowerCase().trim();
+  if (!email) {
     throw new InputError('Email is required');
   }
 
@@ -31,7 +32,7 @@ export async function login(request: LoginRequest): Promise<LoginResult> {
         id: true,
         passwordHash: true,
       },
-      where: eq(users.email, request.email),
+      where: eq(users.email, email),
     });
 
     if (!user) {
@@ -44,7 +45,7 @@ export async function login(request: LoginRequest): Promise<LoginResult> {
     }
 
     const validPassword = await validateHash(
-      `${request.email}${request.password}`,
+      `${email}${request.password}`,
       user.passwordHash,
     );
 

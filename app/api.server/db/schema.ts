@@ -17,7 +17,7 @@ export const users = pgTable('users', {
   email: varchar({ length: 254 }).notNull().unique(),
   emailConfirmed: boolean('email_confirmed').notNull().default(false),
   emailConfirmationCode: varchar('email_confirmation_code', { length: 100 }),
-  passwordHash: varchar('password_hash', { length: 100 }).notNull(),
+  passwordHash: varchar('password_hash', { length: 100 }),
   createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
     .defaultNow(),
@@ -58,6 +58,7 @@ export const tokensRelations = relations(tokens, ({ one }) => ({
 
 export const emailTemplates = pgTable('email_templates', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  workspaceId: integer('workspace_id').references(() => workspaces.id),
   subject: text().notNull(),
   body: text().notNull(),
   createdAt: timestamp('created_at', { withTimezone: true })
@@ -71,6 +72,10 @@ export const emailTemplates = pgTable('email_templates', {
 });
 
 export const emailTemplatesRelations = relations(emailTemplates, ({ one }) => ({
+  workspace: one(workspaces, {
+    fields: [emailTemplates.workspaceId],
+    references: [workspaces.id],
+  }),
   createdByUser: one(users, {
     fields: [emailTemplates.createdBy],
     references: [users.id],
@@ -145,6 +150,7 @@ export const workspacesRelations = relations(workspaces, ({ one, many }) => ({
     references: [users.id],
   }),
   roles: many(userWorkspaceRoles),
+  emailTemplates: many(emailTemplates),
 }));
 
 export const roles = pgTable('roles', {
@@ -177,6 +183,7 @@ export const userWorkspaceRoles = pgTable(
     roleId: integer('role_id')
       .notNull()
       .references(() => roles.id),
+    accepted: boolean().notNull().default(false),
     createdAt: timestamp('created_at', { withTimezone: true })
       .notNull()
       .defaultNow(),

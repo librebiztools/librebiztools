@@ -8,6 +8,13 @@
       "when": 1740667304227,
       "tag": "0000_shiny_tarantula",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1740755642226,
+      "tag": "0001_zippy_la_nuit",
+      "breakpoints": true
     }
   ]
 }

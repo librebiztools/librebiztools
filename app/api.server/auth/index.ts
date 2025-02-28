@@ -6,3 +6,4 @@ export * from './sendSignupEmail';
 export * from './signup';
 export * from './getRoles';
 export * from './getUsers';
+export * from './addUser';

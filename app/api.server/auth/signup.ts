@@ -23,10 +23,14 @@ export interface SignupResult {
 }
 
 export async function signup(request: SignupRequest): Promise<SignupResult> {
+  const name = request.name?.toString().toLowerCase().trim();
+  const email = request.name?.toString().toLowerCase().trim();
+  const workspaceName = request.workspaceName?.toString().trim();
+
   if (
-    !request.name ||
-    request.name.trim().length < config.USER.MIN_NAME_LENGTH ||
-    request.name.trim().length > config.USER.MAX_NAME_LENGTH
+    !name ||
+    name.length < config.USER.MIN_NAME_LENGTH ||
+    name.length > config.USER.MAX_NAME_LENGTH
   ) {
     throw new InputError(
       `Name must be between ${config.USER.MIN_NAME_LENGTH} and ${config.USER.MAX_NAME_LENGTH} characters in length`,
@@ -34,16 +38,16 @@ export async function signup(request: SignupRequest): Promise<SignupResult> {
   }
 
   if (
-    !request.workspaceName ||
-    request.name.trim().length < config.WORKSPACE.MIN_NAME_LENGTH ||
-    request.name.trim().length > config.WORKSPACE.MAX_NAME_LENGTH
+    !workspaceName ||
+    workspaceName.length < config.WORKSPACE.MIN_NAME_LENGTH ||
+    workspaceName.length > config.WORKSPACE.MAX_NAME_LENGTH
   ) {
     throw new InputError(
       `Workspace name must be between ${config.WORKSPACE.MIN_NAME_LENGTH} and ${config.WORKSPACE.MAX_NAME_LENGTH} characters in length`,
     );
   }
 
-  if (!request.email) {
+  if (!email) {
     throw new InputError('Email is required');
   }
 
@@ -58,10 +62,6 @@ export async function signup(request: SignupRequest): Promise<SignupResult> {
   if (request.password !== request.confirmPassword) {
     throw new InputError('Passwords do not match');
   }
-
-  const email = request.email.trim();
-  const workspaceName = request.workspaceName.trim();
-  const name = request.name.trim();
 
   const user = await db.query.users.findFirst({
     columns: {
