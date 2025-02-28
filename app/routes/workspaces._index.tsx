@@ -2,16 +2,11 @@ import { redirect } from 'react-router';
 import { getSession } from '~/api.server/session';
 import { errorRedirect, loginRedirect } from '~/api.server/utils';
 import { getWorkspacesForUser } from '~/api.server/workspace';
-import type { Route } from './+types/workspaces';
+import type { Route } from './+types/workspaces._index';
 
 // TODO: Workspace picker
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const url = new URL(request.url);
-  if (url.pathname !== '/workspaces') {
-    return;
-  }
-
   const session = await getSession(request.headers.get('Cookie'));
   const userId = session.get('userId');
   if (!userId) {
