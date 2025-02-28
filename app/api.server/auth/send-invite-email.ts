@@ -18,6 +18,7 @@ export async function sendInviteEmail({
   const roles = await (tx || db)
     .select({
       accepted: userWorkspaceRoles.accepted,
+      name: users.name,
       email: users.email,
       passwordHash: users.passwordHash,
     })
@@ -51,7 +52,8 @@ export async function sendInviteEmail({
         slug,
       }),
       vars: {
-        accept_link: `${config.BASE_URL}/accept-invite`,
+        name: role.name,
+        login_link: `${config.BASE_URL}/workspaces`,
       },
       tx,
     });
@@ -63,7 +65,8 @@ export async function sendInviteEmail({
         slug,
       }),
       vars: {
-        accept_link: `${config.BASE_URL}/signup?email=${encodeURIComponent(role.email)}`,
+        name: role.name,
+        signup_link: `${config.BASE_URL}/signup?email=${encodeURIComponent(role.email)}`,
       },
       tx,
     });

@@ -42,9 +42,9 @@ const existingWorkspaceMemberInvitation = {
   subject: 'You’re Invited! Join Our Workspace',
   body: `Hello {{name}},
 
-You’ve been invited to join {{workspace_name}}. Click the link below to accept this invitation:
+You’ve been invited to join {{workspace_name}}. Simply login and click accept to join {{workspace_name}}:
 
-{{accept_link}}
+{{login_link}}
 
 If you weren’t expecting this invitation, you can ignore this email.
 
@@ -54,7 +54,7 @@ Tickflo Team`,
 
 const newWorkspaceMemberInvitation = {
   subject: 'You’re Invited! Join Our Workspace',
-  body: `Hello,
+  body: `Hello {{name}},
 
 You’ve been invited to join {{workspace_name}}. Click the link below to create your account and get started:
 
