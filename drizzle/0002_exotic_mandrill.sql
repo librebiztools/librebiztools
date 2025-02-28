@@ -1,0 +1,1 @@
+ALTER TABLE "email_templates" ADD COLUMN "template_type_id" integer NOT NULL;

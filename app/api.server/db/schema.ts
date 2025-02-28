@@ -59,6 +59,7 @@ export const tokensRelations = relations(tokens, ({ one }) => ({
 export const emailTemplates = pgTable('email_templates', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   workspaceId: integer('workspace_id').references(() => workspaces.id),
+  templateTypeId: integer('template_type_id').notNull(),
   subject: text().notNull(),
   body: text().notNull(),
   createdAt: timestamp('created_at', { withTimezone: true })

@@ -7,7 +7,11 @@ import {
   userWorkspaceRoles,
   workspaces,
 } from '../db/schema';
-import { templates } from '../email';
+import {
+  INVITE_EXISTING_TEMPLATE_ID,
+  INVITE_NEW_TEMPLATE_ID,
+  templates,
+} from '../email';
 
 export async function createWorkspace({
   userId,
@@ -67,12 +71,14 @@ export async function createWorkspace({
   await tx.insert(emailTemplates).values([
     {
       workspaceId: workspace.id,
+      templateTypeId: INVITE_EXISTING_TEMPLATE_ID,
       subject: templates.existingWorkspaceMemberInvitation.subject,
       body: templates.existingWorkspaceMemberInvitation.body,
       createdBy: userId,
     },
     {
       workspaceId: workspace.id,
+      templateTypeId: INVITE_NEW_TEMPLATE_ID,
       subject: templates.newWorkspaceMemberInvitation.subject,
       body: templates.newWorkspaceMemberInvitation.body,
       createdBy: userId,

@@ -3,8 +3,12 @@ export type EmailTemplate = {
   body: string;
 };
 
+export const SYSTEM_TEMPLATE_IDS = [1, 2];
+
 export const SIGNUP_TEMPLATE_ID = 1;
 export const FORGOT_PASSWORD_TEMPLATE_ID = 2;
+export const INVITE_EXISTING_TEMPLATE_ID = 3;
+export const INVITE_NEW_TEMPLATE_ID = 4;
 
 const signup = {
   subject: 'Welcome to Tickflo! Confirm Your Email',
