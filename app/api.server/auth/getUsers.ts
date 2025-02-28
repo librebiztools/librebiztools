@@ -7,6 +7,7 @@ type User = {
   name: string;
   email: string;
   role: string;
+  inviteAccepted: boolean;
 };
 
 export async function getUsers({
@@ -19,6 +20,7 @@ export async function getUsers({
       name: users.name,
       email: users.email,
       role: roles.role,
+      inviteAccepted: userWorkspaceRoles.accepted,
     })
     .from(users)
     .innerJoin(userWorkspaceRoles, eq(userWorkspaceRoles.userId, users.id))

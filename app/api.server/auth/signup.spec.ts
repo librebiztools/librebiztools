@@ -148,7 +148,7 @@ test('Send signup email on valid signup', async () => {
   });
 
   const row = await db.query.emails.findFirst({
-    where: and(eq(emails.to, email), eq(emails.templateId, 1)),
+    where: and(eq(emails.to, email.toLowerCase()), eq(emails.templateId, 1)),
   });
 
   expect(row).toBeDefined();
@@ -166,7 +166,7 @@ test('Create workspace with default roles on valid signup', async () => {
   });
 
   const row = await db.query.users.findFirst({
-    where: eq(users.email, email),
+    where: eq(users.email, email.toLowerCase()),
     with: {
       workspaces: true,
       roles: true,

@@ -3,7 +3,10 @@ export type EmailTemplate = {
   body: string;
 };
 
-export const signup = {
+export const SIGNUP_TEMPLATE_ID = 1;
+export const FORGOT_PASSWORD_TEMPLATE_ID = 2;
+
+const signup = {
   subject: 'Welcome to Tickflo! Confirm Your Email',
   body: `Hello,
 
@@ -17,7 +20,7 @@ Best regards,
 Tickflo Team`,
 } satisfies EmailTemplate;
 
-export const forgotPassword = {
+const forgotPassword = {
   subject: 'Reset Your Password',
   body: `Hello,
 
@@ -31,11 +34,25 @@ Best regards,
 Tickflo Team`,
 } satisfies EmailTemplate;
 
-export const teamMemberInvitation = {
-  subject: 'You’re Invited! Join Our Team',
+const existingWorkspaceMemberInvitation = {
+  subject: 'You’re Invited! Join Our Workspace',
+  body: `Hello {{name}},
+
+You’ve been invited to join {{workspace_name}}. Click the link below to accept this invitation:
+
+{{accept_link}}
+
+If you weren’t expecting this invitation, you can ignore this email.
+
+Best regards,  
+Tickflo Team`,
+} satisfies EmailTemplate;
+
+const newWorkspaceMemberInvitation = {
+  subject: 'You’re Invited! Join Our Workspace',
   body: `Hello,
 
-You’ve been invited to join {{team_name}}. Click the link below to create your account and get started:
+You’ve been invited to join {{workspace_name}}. Click the link below to create your account and get started:
 
 {{signup_link}}
 
@@ -45,14 +62,9 @@ Best regards,
 Tickflo Team`,
 } satisfies EmailTemplate;
 
-export const addedToWorkspace = {
-  subject: 'You’ve Been Added to {{workspace_name}}!',
-  body: `Hello,
-
-You’ve been added to the {{workspace_name}} workspace. Click the link below to access it:
-
-{{workspace_link}}
-
-Best regards,  
-Tickflo Team`,
-} satisfies EmailTemplate;
+export const templates = {
+  signup,
+  forgotPassword,
+  newWorkspaceMemberInvitation,
+  existingWorkspaceMemberInvitation,
+};

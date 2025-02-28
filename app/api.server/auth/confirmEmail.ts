@@ -9,14 +9,19 @@ interface ConfirmEmailRequest {
   code: string | null | undefined;
 }
 
-export async function confirmEmail({ email, code }: ConfirmEmailRequest) {
-  if (!email || !code) {
+export async function confirmEmail(request: ConfirmEmailRequest) {
+  const email = request.email?.toLowerCase().trim();
+  if (!email || !request.code) {
     throw new InputError('Email address and confirmation code are required');
   }
 
   const user = await getUserByEmail(email);
 
-  if (!user || user.emailConfirmed || user.emailConfirmationCode !== code) {
+  if (
+    !user ||
+    user.emailConfirmed ||
+    user.emailConfirmationCode !== request.code
+  ) {
     throw new AuthError('Invalid email or confirmation code');
   }
 

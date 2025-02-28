@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm';
-import { forgotPassword, signup } from './data/emailTemplates';
+import { templates } from '../email';
 import { db } from './index';
 import { emailTemplates, meta } from './schema';
 
@@ -14,12 +14,12 @@ export async function seed() {
 
   await db.insert(emailTemplates).values([
     {
-      subject: signup.subject,
-      body: signup.body,
+      subject: templates.signup.subject,
+      body: templates.signup.body,
     },
     {
-      subject: forgotPassword.subject,
-      body: forgotPassword.body,
+      subject: templates.forgotPassword.subject,
+      body: templates.forgotPassword.body,
     },
   ]);
 

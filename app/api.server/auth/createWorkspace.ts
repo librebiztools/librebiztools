@@ -1,7 +1,13 @@
 import { slugify } from '~/utils/slugify';
 import config from '../config';
 import type { TransactionType } from '../db';
-import { roles, userWorkspaceRoles, workspaces } from '../db/schema';
+import {
+  emailTemplates,
+  roles,
+  userWorkspaceRoles,
+  workspaces,
+} from '../db/schema';
+import { templates } from '../email';
 
 export async function createWorkspace({
   userId,
@@ -53,9 +59,25 @@ export async function createWorkspace({
   await tx.insert(userWorkspaceRoles).values({
     userId,
     workspaceId: workspace.id,
+    accepted: true,
     roleId: adminRole.id,
     createdBy: userId,
   });
+
+  await tx.insert(emailTemplates).values([
+    {
+      workspaceId: workspace.id,
+      subject: templates.existingWorkspaceMemberInvitation.subject,
+      body: templates.existingWorkspaceMemberInvitation.body,
+      createdBy: userId,
+    },
+    {
+      workspaceId: workspace.id,
+      subject: templates.newWorkspaceMemberInvitation.subject,
+      body: templates.newWorkspaceMemberInvitation.body,
+      createdBy: userId,
+    },
+  ]);
 
   return { slug };
 }

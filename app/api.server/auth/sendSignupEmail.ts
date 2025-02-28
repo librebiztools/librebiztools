@@ -1,17 +1,18 @@
 import config from '../config';
-import { type TransactionType, db } from '../db';
-import { emails } from '../db/schema';
+import type { TransactionType } from '../db';
+import { SIGNUP_TEMPLATE_ID, sendEmail } from '../email';
 
 export async function sendSignupEmail(
-  email: string,
+  to: string,
   code: string,
   tx?: TransactionType,
 ) {
-  await (tx || db).insert(emails).values({
-    to: email,
-    templateId: 1,
+  await sendEmail({
+    to,
+    templateId: SIGNUP_TEMPLATE_ID,
     vars: {
-      confirmation_link: `${config.BASE_URL}/email-confirmation/confirm?email=${encodeURIComponent(email)}&code=${encodeURIComponent(code)}`,
+      confirmation_link: `${config.BASE_URL}/email-confirmation/confirm?email=${encodeURIComponent(to)}&code=${encodeURIComponent(code)}`,
     },
+    tx,
   });
 }

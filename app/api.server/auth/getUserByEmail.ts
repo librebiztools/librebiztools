@@ -6,7 +6,7 @@ type User = typeof users.$inferSelect;
 
 export async function getUserByEmail(email: string): Promise<User | null> {
   const row = await db.query.users.findFirst({
-    where: eq(users.email, email),
+    where: eq(users.email, email.trim().toLowerCase()),
   });
 
   if (!row) {

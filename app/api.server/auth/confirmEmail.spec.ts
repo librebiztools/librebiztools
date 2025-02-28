@@ -1,10 +1,8 @@
 import { faker } from '@faker-js/faker';
-import { eq } from 'drizzle-orm';
 import { expect, test } from 'vitest';
-import { db } from '../db';
-import { users } from '../db/schema';
 import { AuthError, InputError } from '../errors';
 import { confirmEmail } from './confirmEmail';
+import { getUserByEmail } from './getUserByEmail';
 import { signup } from './signup';
 
 const PASSWORD = 'password';
@@ -28,7 +26,7 @@ test('Throw on invalid email', async () => {
 });
 
 test('Throw on invalid code', async () => {
-  const email = faker.internet.email();
+  const email = faker.internet.email().toLowerCase();
 
   await signup({
     name: faker.person.firstName(),
@@ -44,7 +42,7 @@ test('Throw on invalid code', async () => {
 });
 
 test('Mark user confirmed with correct code', async () => {
-  const email = faker.internet.email();
+  const email = faker.internet.email().toLowerCase();
 
   await signup({
     name: faker.person.firstName(),
@@ -54,18 +52,14 @@ test('Mark user confirmed with correct code', async () => {
     confirmPassword: PASSWORD,
   });
 
-  let user = await db.query.users.findFirst({
-    where: eq(users.email, email),
-  });
+  let user = await getUserByEmail(email);
 
   await confirmEmail({
     email,
     code: user?.emailConfirmationCode,
   });
 
-  user = await db.query.users.findFirst({
-    where: eq(users.email, email),
-  });
+  user = await getUserByEmail(email);
 
   expect(user?.emailConfirmed).toBe(true);
   expect(user?.emailConfirmationCode).toBeNull();
@@ -82,9 +76,7 @@ test('Throw on already confirmed', async () => {
     confirmPassword: PASSWORD,
   });
 
-  const user = await db.query.users.findFirst({
-    where: eq(users.email, email),
-  });
+  const user = await getUserByEmail(email);
 
   await confirmEmail({
     email,
