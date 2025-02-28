@@ -1,12 +1,12 @@
-import { Welcome } from '../welcome/welcome';
+import { redirect } from 'react-router';
+import { getUserForRequest } from '~/api.server/auth';
+import type { Route } from './+types/_index';
 
-export function meta() {
-  return [
-    { title: 'New React Router App' },
-    { name: 'description', content: 'Welcome to React Router!' },
-  ];
-}
+export async function loader({ request }: Route.LoaderArgs) {
+  const user = await getUserForRequest(request);
+  if (user) {
+    return redirect('/workspaces');
+  }
 
-export default function Home() {
-  return <Welcome />;
+  return redirect('/login');
 }
