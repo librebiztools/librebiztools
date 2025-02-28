@@ -1,4 +1,5 @@
 import {
+  Form,
   Link,
   Links,
   Meta,
@@ -11,9 +12,11 @@ import {
 } from 'react-router';
 
 import { useEffect, useState } from 'react';
+import { FaMoon, FaSun } from 'react-icons/fa';
 import type { Route } from './+types/root';
 import { getUserForRequest } from './api.server/auth';
 import { ApiError } from './api.server/errors';
+import { getPreferences } from './api.server/preferences';
 import { commitSession, getSession } from './api.server/session';
 import type { User } from './api/user';
 import stylesheet from './app.css?url';
@@ -27,11 +30,13 @@ export async function loader({ request }: Route.LoaderArgs) {
   try {
     const user = await getUserForRequest(request);
     const session = await getSession(request.headers.get('Cookie'));
+    const preferences = await getPreferences(request.headers.get('Cookie'));
 
     return data(
       {
         error: session.get('error'),
         message: session.get('message'),
+        theme: preferences.get('theme') || 'light',
         user: user
           ? {
               id: user.id,
@@ -59,6 +64,7 @@ type RootLoaderData = {
   user: User | null;
   error: string | undefined;
   message: string | undefined;
+  theme: 'light' | 'dark';
 };
 
 const Toast = ({
@@ -90,7 +96,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const [messageToast, setMessageToast] = useState(data?.message);
 
   return (
-    <html lang="en">
+    <html lang="en" data-theme={data?.theme || 'light'}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -107,6 +113,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </div>
           <div className="flex-none">
             <ul className="menu menu-horizontal px-1">
+              <li>
+                <Form method="post" action="/toggle-theme">
+                  <button type="submit" className="pt-1">
+                    {data?.theme === 'dark' ? (
+                      <FaMoon className="cursor-pointer" />
+                    ) : (
+                      <FaSun className="cursor-pointer" />
+                    )}
+                  </button>
+                </Form>
+              </li>
               <li>
                 {!user && <Link to="/login">Login</Link>}
                 {user && (
