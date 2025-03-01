@@ -83,8 +83,8 @@ export default function workspaceUsers({ loaderData }: Route.ComponentProps) {
                         </li>
                       )}
                       <li>
-                        <Link to="./delete" className="text-error">
-                          <FaTrash /> Delete
+                        <Link to="./remove" className="text-error">
+                          <FaTrash /> Remove
                         </Link>
                       </li>
                     </ul>
