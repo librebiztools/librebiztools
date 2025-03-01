@@ -1,2 +1,2 @@
-export * from './loginRedirect';
-export * from './errorRedirect';
+export * from './login-redirect';
+export * from './error-redirect';

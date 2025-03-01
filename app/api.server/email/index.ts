@@ -1,3 +1,3 @@
-export * from './email-template-types';
 export * from './email-templates';
 export * from './send-email';
+export * from './get-email-template-id';

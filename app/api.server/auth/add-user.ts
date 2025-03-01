@@ -4,8 +4,9 @@ import config from '../config';
 import { db } from '../db';
 import { roles, userWorkspaceRoles, users } from '../db/schema';
 import { InputError } from '../errors';
-import { getUserByEmail } from './getUserByEmail';
-import { getWorkspaceBySlug } from './getWorkspaceBySlug';
+import { getUserByEmail } from './get-user-by-email';
+import { getWorkspaceBySlug } from './get-workspace-by-slug';
+import { sendInviteEmail } from './send-invite-email';
 
 // TODO: permissions
 
@@ -70,11 +71,15 @@ export async function addUser({
 
   const existing = await getUserByEmail(email);
   if (existing) {
-    await db.insert(userWorkspaceRoles).values({
-      userId,
-      workspaceId: workspace.id,
-      roleId: role.id,
-      createdBy: userId,
+    await db.transaction(async (tx) => {
+      await tx.insert(userWorkspaceRoles).values({
+        userId: existing.id,
+        workspaceId: workspace.id,
+        roleId: role.id,
+        createdBy: userId,
+      });
+
+      await sendInviteEmail({ userId: existing.id, slug, tx });
     });
   } else {
     const emailConfirmationCode = randomBytes(32).toString('hex');
@@ -101,6 +106,8 @@ export async function addUser({
         roleId: role.id,
         createdBy: userId,
       });
+
+      await sendInviteEmail({ userId: user.id, slug, tx });
     });
   }
 }

@@ -2,7 +2,11 @@ import { eq } from 'drizzle-orm';
 import { db } from '../db';
 import { userWorkspaceRoles, type workspaces } from '../db/schema';
 
-type Workspace = typeof workspaces.$inferSelect;
+type WorkspaceType = typeof workspaces.$inferSelect;
+
+interface Workspace extends WorkspaceType {
+  accepted: boolean;
+}
 
 export async function getWorkspacesForUser({
   userId,
@@ -18,5 +22,8 @@ export async function getWorkspacesForUser({
     return [];
   }
 
-  return rows.map((r) => r.workspace);
+  return rows.map((r) => ({
+    accepted: r.accepted,
+    ...r.workspace,
+  }));
 }

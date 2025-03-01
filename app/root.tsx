@@ -84,7 +84,7 @@ const Toast = ({
   }, [onClose]);
 
   return (
-    <div className="toast toast-top top-10 animate-fade shadow-lg">
+    <div className="toast toast-top top-10 z-50 animate-fade shadow-lg">
       <div className={`alert alert-${type}`}>
         <span>{message}</span>
       </div>

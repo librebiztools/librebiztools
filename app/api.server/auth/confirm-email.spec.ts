@@ -1,8 +1,8 @@
 import { faker } from '@faker-js/faker';
 import { expect, test } from 'vitest';
 import { AuthError, InputError } from '../errors';
-import { confirmEmail } from './confirmEmail';
-import { getUserByEmail } from './getUserByEmail';
+import { confirmEmail } from './confirm-email';
+import { getUserByEmail } from './get-user-by-email';
 import { signup } from './signup';
 
 const PASSWORD = 'password';

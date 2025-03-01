@@ -1,2 +1,2 @@
-export * from './getWorkspacesForUser';
-export * from './getWorkspaceForUser';
+export * from './get-workspace-for-user';
+export * from './get-workspaces-for-user';
