@@ -19,3 +19,7 @@ export type DatabaseType = typeof db;
 export type TransactionType = Parameters<
   Parameters<DatabaseType['transaction']>[0]
 >[0];
+
+export * from './seed';
+export * from './migrate';
+export * from './insert-missing-email-templates';

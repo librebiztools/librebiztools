@@ -7,6 +7,7 @@ import {
   primaryKey,
   text,
   timestamp,
+  unique,
   varchar,
 } from 'drizzle-orm/pg-core';
 import config from '~/api.server/config';
@@ -56,21 +57,25 @@ export const tokensRelations = relations(tokens, ({ one }) => ({
   user: one(users, { fields: [tokens.userId], references: [users.id] }),
 }));
 
-export const emailTemplates = pgTable('email_templates', {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  workspaceId: integer('workspace_id').references(() => workspaces.id),
-  templateTypeId: integer('template_type_id').notNull(),
-  subject: text().notNull(),
-  body: text().notNull(),
-  createdAt: timestamp('created_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-  createdBy: integer('created_by').references(() => users.id),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).$onUpdateFn(
-    () => new Date(),
-  ),
-  updatedBy: integer('updated_by').references(() => users.id),
-});
+export const emailTemplates = pgTable(
+  'email_templates',
+  {
+    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    workspaceId: integer('workspace_id').references(() => workspaces.id),
+    templateTypeId: integer('template_type_id').notNull(),
+    subject: text().notNull(),
+    body: text().notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    createdBy: integer('created_by').references(() => users.id),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).$onUpdateFn(
+      () => new Date(),
+    ),
+    updatedBy: integer('updated_by').references(() => users.id),
+  },
+  (table) => [unique().on(table.workspaceId, table.templateTypeId)],
+);
 
 export const emailTemplatesRelations = relations(emailTemplates, ({ one }) => ({
   workspace: one(workspaces, {
