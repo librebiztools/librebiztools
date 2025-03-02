@@ -1,59 +1,59 @@
 import { FaCheck, FaUndo } from 'react-icons/fa';
 import { Form, data, redirect } from 'react-router';
-import { ApiError } from '~/api.server/errors';
-import { loginRedirect } from '~/api.server/helpers';
-import { commitSession, getSession } from '~/api.server/session';
-import { getUserById, removeUser } from '~/api.server/users';
+import { getContext } from '~/.server/context';
+import { errorRedirect, loginRedirect } from '~/.server/helpers';
 import { ErrorAlert } from '~/components/error-alert';
 import type { Route } from './+types/workspaces.$slug.users.$id.remove';
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const session = await getSession(request.headers.get('Cookie'));
-  const userId = session.get('userId');
+  const context = await getContext(request);
+  const {
+    session,
+    services: { UserService },
+  } = context;
 
+  const userId = session.get('userId');
   if (!userId) {
     return loginRedirect(session, request.url);
   }
 
   const removeUserId = Number.parseInt(params.id || '', 10);
-  return (await getUserById(removeUserId)).fold(
-    (removeUser) => {
-      return data({
-        removeUser,
-      });
-    },
-    async (err) => {
-      session.flash('error', err.message);
-      return redirect('..', {
-        headers: {
-          'Set-Cookie': await commitSession(session),
-        },
-      });
-    },
+  const removeUser = await UserService.getUserById(
+    { id: removeUserId },
+    context,
   );
+  if (removeUser.isNone()) {
+    return errorRedirect(session, 'User not found', '..');
+  }
+
+  return data({
+    removeUser: removeUser.value,
+  });
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
-  const session = await getSession(request.headers.get('Cookie'));
-  const userId = session.get('userId');
+  const context = await getContext(request);
+  const {
+    session,
+    services: { WorkspaceService },
+  } = context;
 
+  const userId = session.get('userId');
   if (!userId) {
     return loginRedirect(session, request.url);
   }
 
   const removeUserId = Number.parseInt(params.id || '', 10);
 
-  try {
-    await removeUser({ userId, slug: params.slug, removeUserId });
-
-    return redirect('..');
-  } catch (err) {
-    if (err instanceof ApiError) {
-      return data({ error: err.message });
-    }
-
-    throw err;
+  const result = await WorkspaceService.removeUser(
+    { userId, slug: params.slug, removeUserId },
+    context,
+  );
+  if (result.isErr()) {
+    return data({ error: result.error.message });
   }
+
+  return redirect('..');
 }
 
 export default function workspaceRemoveUser({

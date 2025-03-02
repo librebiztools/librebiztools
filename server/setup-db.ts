@@ -1,9 +1,9 @@
 import { sql } from 'drizzle-orm';
-import config from '~/api.server/config';
-import { db } from '~/api.server/db';
-import { insertMissingEmailTemplates } from '~/api.server/db/insert-missing-email-templates';
-import { applyMigrations } from '~/api.server/db/migrate';
-import { seed } from '~/api.server/db/seed';
+import config from '~/.server/config';
+import { db } from '~/.server/db';
+import { insertMissingEmailTemplates } from '~/.server/db/insert-missing-email-templates';
+import { applyMigrations } from '~/.server/db/migrate';
+import { seed } from '~/.server/db/seed';
 
 export async function setupDb() {
   console.log('Checking if database is up...');

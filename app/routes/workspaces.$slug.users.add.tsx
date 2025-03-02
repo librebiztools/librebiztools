@@ -1,22 +1,27 @@
 import { FaPlus, FaUndo } from 'react-icons/fa';
 import { Form, data, redirect } from 'react-router';
-import { getRoles } from '~/api.server/auth';
-import { loginRedirect } from '~/api.server/helpers';
-import { getSession } from '~/api.server/session';
-import { addUser } from '~/api.server/users';
+import { getContext } from '~/.server/context';
+import { loginRedirect } from '~/.server/helpers';
 import { ErrorAlert } from '~/components/error-alert';
 import config from '~/config';
 import type { Route } from './+types/workspaces.$slug.users.add';
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const session = await getSession(request.headers.get('Cookie'));
-  const userId = session.get('userId');
+  const context = await getContext(request);
+  const {
+    session,
+    services: { WorkspaceService },
+  } = context;
 
+  const userId = session.get('userId');
   if (!userId) {
     return loginRedirect(session, request.url);
   }
 
-  const roles = await getRoles({ userId, slug: params.slug });
+  const roles = await WorkspaceService.getRoles(
+    { userId, slug: params.slug },
+    context,
+  );
 
   return data({
     roles,
@@ -24,9 +29,13 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
-  const session = await getSession(request.headers.get('Cookie'));
-  const userId = session.get('userId');
+  const context = await getContext(request);
+  const {
+    session,
+    services: { WorkspaceService },
+  } = context;
 
+  const userId = session.get('userId');
   if (!userId) {
     return loginRedirect(session, request.url);
   }
@@ -36,16 +45,15 @@ export async function action({ request, params }: Route.ActionArgs) {
   const email = formData.get('email')?.toString();
   const roleId = Number.parseInt(formData.get('role')?.toString() || '', 10);
 
-  return (
-    await addUser({ userId, slug: params.slug, name, email, roleId })
-  ).fold(
-    () => {
-      return redirect('..');
-    },
-    (err) => {
-      return data({ error: err.message });
-    },
+  const result = await WorkspaceService.addUser(
+    { userId, slug: params.slug, name, email, roleId },
+    context,
   );
+  if (result.isErr()) {
+    return data({ error: result.error.message });
+  }
+
+  return redirect('..');
 }
 
 export default function workspaceAddUser({

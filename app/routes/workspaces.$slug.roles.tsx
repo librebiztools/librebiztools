@@ -1,20 +1,26 @@
 import { FaPlus, FaSearch, FaTrash } from 'react-icons/fa';
 import { FaPencil, FaShield } from 'react-icons/fa6';
 import { data } from 'react-router';
-import { getRoles } from '~/api.server/auth';
-import { loginRedirect } from '~/api.server/helpers';
-import { getSession } from '~/api.server/session';
+import { getContext } from '~/.server/context';
+import { loginRedirect } from '~/.server/helpers';
 import type { Route } from './+types/workspaces.$slug.roles';
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const session = await getSession(request.headers.get('Cookie'));
-  const userId = session.get('userId');
+  const context = await getContext(request);
+  const {
+    session,
+    services: { WorkspaceService },
+  } = context;
 
+  const userId = session.get('userId');
   if (!userId) {
     return loginRedirect(session, request.url);
   }
 
-  const roles = await getRoles({ userId, slug: params.slug });
+  const roles = await WorkspaceService.getRoles(
+    { userId, slug: params.slug },
+    context,
+  );
 
   return data({ roles });
 }

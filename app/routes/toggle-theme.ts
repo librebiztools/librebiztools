@@ -1,5 +1,5 @@
 import { redirect } from 'react-router';
-import { commitPreferences, getPreferences } from '~/api.server/preferences';
+import { commitPreferences, getPreferences } from '~/.server/preferences';
 import type { Route } from './+types/toggle-theme';
 
 export async function action({ request }: Route.ActionArgs) {

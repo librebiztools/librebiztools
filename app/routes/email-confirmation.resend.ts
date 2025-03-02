@@ -1,24 +1,37 @@
 import { redirect } from 'react-router';
-import { sendSignupEmail } from '~/api.server/auth';
-import { AuthError } from '~/api.server/errors';
-import { commitSession, getSession } from '~/api.server/session';
-import { getUserForRequest } from '~/api.server/users';
+import { getContext } from '~/.server/context';
+import { loginRedirect } from '~/.server/helpers';
+import { commitSession } from '~/.server/session';
 import type { Route } from './+types/email-confirmation.resend';
 
 export async function action({ request }: Route.ActionArgs) {
-  const user = await getUserForRequest(request);
-  if (!user) {
-    throw new AuthError('You must be logged in to access this route');
+  const context = await getContext(request);
+  const {
+    session,
+    services: { AuthService, UserService },
+  } = context;
+
+  const userId = session.get('userId');
+  if (!userId) {
+    return loginRedirect(session);
   }
 
-  if (!user.emailConfirmationCode) {
-    throw new AuthError('You have already confirmed your email');
+  const user = await UserService.getUserById({ id: userId }, context);
+
+  if (user.isNone()) {
+    session.flash('error', 'User not found');
+  } else {
+    if (!user.value.emailConfirmationCode) {
+      session.flash('error', 'You have already confirmed your email');
+    } else {
+      await AuthService.sendSignupEmail(
+        { to: user.value.email, code: user.value.emailConfirmationCode },
+        context,
+      );
+
+      session.set('dismissedEmailConfirmation', true);
+    }
   }
-
-  await sendSignupEmail(user.email, user.emailConfirmationCode);
-
-  const session = await getSession(request.headers.get('Cookie'));
-  session.set('dismissedEmailConfirmation', true);
 
   return redirect(request.headers.get('referer') || '/', {
     headers: {

@@ -1,7 +1,6 @@
 import { redirect } from 'react-router';
-import { confirmEmail } from '~/api.server/auth';
-import { ApiError } from '~/api.server/errors';
-import { commitSession, getSession } from '~/api.server/session';
+import { getContext } from '~/.server/context';
+import { commitSession } from '~/.server/session';
 import type { Route } from './+types/email-confirmation.confirm';
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -9,18 +8,14 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   const email = url.searchParams.get('email');
   const code = url.searchParams.get('code');
-  const session = await getSession(request.headers.get('Cookie'));
+  const context = await getContext(request);
+  const {
+    session,
+    services: { AuthService },
+  } = context;
 
-  try {
-    await confirmEmail({ email, code });
-    session.flash('message', 'Email address confirmed!');
-  } catch (err) {
-    if (err instanceof ApiError) {
-      session.flash('error', `Error confirming email address: ${err.message}`);
-    } else {
-      throw err;
-    }
-  }
+  await AuthService.confirmEmail({ email, code }, context);
+  session.flash('message', 'Email address confirmed!');
 
   return redirect('/', {
     headers: {

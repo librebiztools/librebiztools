@@ -1,20 +1,28 @@
 import { FaLock, FaUsers } from 'react-icons/fa';
 import { FaShield } from 'react-icons/fa6';
 import { Link, NavLink, Outlet, data } from 'react-router';
-import { errorRedirect, loginRedirect } from '~/api.server/helpers';
-import { commitSession, getSession } from '~/api.server/session';
-import { getWorkspaceForUser } from '~/api.server/workspaces';
+import { getContext } from '~/.server/context';
+import { errorRedirect, loginRedirect } from '~/.server/helpers';
+import { commitSession } from '~/.server/session';
 import type { Route } from './+types/workspaces.$slug';
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const session = await getSession(request.headers.get('Cookie'));
+  const context = await getContext(request);
+  const {
+    session,
+    services: { WorkspaceService },
+  } = context;
+
   const userId = session.get('userId');
   if (!userId) {
     return loginRedirect(session, request.url);
   }
 
-  const workspace = await getWorkspaceForUser({ userId, slug: params.slug });
-  if (!workspace) {
+  const workspace = await WorkspaceService.getWorkspaceForUser(
+    { userId, slug: params.slug },
+    context,
+  );
+  if (workspace.isNone()) {
     return errorRedirect(
       session,
       'You do not have access to that workspace',
@@ -23,7 +31,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   }
 
   return data(
-    { workspace },
+    { workspace: workspace.value },
     {
       headers: {
         'Set-Cookie': await commitSession(session),

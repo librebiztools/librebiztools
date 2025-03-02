@@ -1,10 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Form, Link, data, redirect } from 'react-router';
-import { Result } from 'typescript-result';
-import { signup } from '~/api.server/auth';
-import { ApiError } from '~/api.server/errors';
-import { commitSession, getSession } from '~/api.server/session';
-import { getUserByEmail } from '~/api.server/users';
+import { getContext } from '~/.server/context';
+import { commitSession } from '~/.server/session';
 import { ErrorAlert } from '~/components/error-alert';
 import config from '~/config';
 import { slugify } from '~/utils/slugify';
@@ -22,60 +19,68 @@ export async function action({ request }: Route.ActionArgs) {
   const password = formData.get('password')?.toString();
   const confirmPassword = formData.get('confirm-password')?.toString();
 
-  const session = await getSession(request.headers.get('Cookie'));
+  const context = await getContext(request);
+
+  const {
+    session,
+    services: { AuthService },
+  } = context;
+
   const returnUrl = session.get('returnUrl');
 
-  try {
-    const result = await signup({
+  const result = await AuthService.signup(
+    {
       name,
       workspaceName,
       email,
       password,
       confirmPassword,
-    });
+    },
+    context,
+  );
 
-    session.set('accessToken', result.token);
-    session.set('userId', result.userId);
-
-    const url = returnUrl || '/workspaces';
-    return redirect(url, {
-      headers: {
-        'Set-Cookie': await commitSession(session),
-      },
-    });
-  } catch (err) {
-    if (err instanceof ApiError) {
-      return data({ message: err.message }, { status: err.code });
-    }
-
-    throw err;
+  if (result.isErr()) {
+    return data({ message: result.error.message });
   }
+
+  session.set('accessToken', result.value.token);
+  session.set('userId', result.value.userId);
+
+  const url = returnUrl || '/workspaces';
+  return redirect(url, {
+    headers: {
+      'Set-Cookie': await commitSession(session),
+    },
+  });
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
 
   const email = url.searchParams.get('email');
-  if (email) {
-    return await Result.fromAsync(getUserByEmail(email)).fold(
-      (user) => {
-        return data({
-          invited: true,
-          email: user.email,
-          name: user.name,
-        });
-      },
-      async (err) => {
-        const session = await getSession(request.headers.get('Cookie'));
-        session.flash('error', err.message);
+  const context = await getContext(request);
+  const {
+    session,
+    services: { UserService },
+  } = context;
 
-        return redirect('.', {
-          headers: {
-            'Set-Cookie': await commitSession(session),
-          },
-        });
-      },
-    );
+  if (email) {
+    const user = await UserService.getUserByEmail({ email }, context);
+    if (user.isNone()) {
+      session.flash('error', 'Unable to find user with that email');
+
+      return redirect('.', {
+        headers: {
+          'Set-Cookie': await commitSession(session),
+        },
+      });
+    }
+
+    return data({
+      invited: true,
+      email: user.value.email,
+      name: user.value.name,
+    });
   }
 }
 

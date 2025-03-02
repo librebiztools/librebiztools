@@ -1,5 +1,5 @@
 import { data } from 'react-router';
-import { reset } from '~/api.server/db/reset';
+import { reset } from '~/.server/db/reset';
 
 export async function loader() {
   if (process.env.NODE_ENV !== 'development') {

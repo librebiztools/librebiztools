@@ -59,9 +59,9 @@ importers:
       react-router:
         specifier: ^7.2.0
         version: 7.2.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-      typescript-result:
-        specifier: ^3.1.1
-        version: 3.1.1
+      ts-results-es:
+        specifier: ^5.0.1
+        version: 5.0.1
     devDependencies:
       '@biomejs/biome':
         specifier: 1.9.4
@@ -2436,6 +2436,9 @@ packages:
       '@swc/wasm':
         optional: true
 
+  ts-results-es@5.0.1:
+    resolution: {integrity: sha512-HjX/7HxQe2bXkbp8pHTjy4Ir9eHIDnDDsLDphhGqy6I9iZ/vD4QXWEIlrVRZsEX+kS2jIiiF/mnl0nKnPTiYFw==}
+
   tsconfck@3.1.5:
     resolution: {integrity: sha512-CLDfGgUp7XPswWnezWwsCRxNmgQjhYq3VXHM0/XIRxhVrKw0M1if9agzryh1QS3nxjCROvV+xWxoJO1YctzzWg==}
     engines: {node: ^18 || >=20}
@@ -2455,10 +2458,6 @@ packages:
   type-is@1.6.18:
     resolution: {integrity: sha512-TkRKr9sUTxEH8MdfuCSP7VizJyzRNMjj2J2do2Jr3Kym598JVdEksuzPQCnlFPW4ky9Q+iA+ma9BGm06XQBy8g==}
     engines: {node: '>= 0.6'}
-
-  typescript-result@3.1.1:
-    resolution: {integrity: sha512-KQ7SdBa1UcZCu+qI7pgZ1FdzBIlGiyoHTaQQDshtsKCKiPdzLlkU6OWkJuhjzo+xl+y+dOVO+2HyyEpODNDHyw==}
-    engines: {node: '>=18'}
 
   typescript@5.7.3:
     resolution: {integrity: sha512-84MVSjMEHP+FQRPy3pX9sTVV/INIex71s9TL2Gm5FG/WG1SqXeKyZ0k7/blY/4FdOzI12CBy1vGc4og/eus0fw==}
@@ -4723,6 +4722,8 @@ snapshots:
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
 
+  ts-results-es@5.0.1: {}
+
   tsconfck@3.1.5(typescript@5.7.3):
     optionalDependencies:
       typescript: 5.7.3
@@ -4736,8 +4737,6 @@ snapshots:
     dependencies:
       media-typer: 0.3.0
       mime-types: 2.1.35
-
-  typescript-result@3.1.1: {}
 
   typescript@5.7.3: {}
 
