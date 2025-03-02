@@ -1,16 +1,13 @@
 export type EmailTemplate = {
+  typeId: number;
   subject: string;
   body: string;
 };
 
 export const SYSTEM_TEMPLATE_IDS = [1, 2];
 
-export const SIGNUP_TEMPLATE_ID = 1;
-export const FORGOT_PASSWORD_TEMPLATE_ID = 2;
-export const INVITE_EXISTING_TEMPLATE_ID = 3;
-export const INVITE_NEW_TEMPLATE_ID = 4;
-
 const signup = {
+  typeId: 1,
   subject: 'Welcome to Tickflo! Confirm Your Email',
   body: `Hello,
 
@@ -25,6 +22,7 @@ Tickflo Team`,
 } satisfies EmailTemplate;
 
 const forgotPassword = {
+  typeId: 2,
   subject: 'Reset Your Password',
   body: `Hello,
 
@@ -39,6 +37,7 @@ Tickflo Team`,
 } satisfies EmailTemplate;
 
 const existingWorkspaceMemberInvitation = {
+  typeId: 3,
   subject: 'You’re Invited! Join Our Workspace',
   body: `Hello {{name}},
 
@@ -53,6 +52,7 @@ Tickflo Team`,
 } satisfies EmailTemplate;
 
 const newWorkspaceMemberInvitation = {
+  typeId: 4,
   subject: 'You’re Invited! Join Our Workspace',
   body: `Hello {{name}},
 
@@ -66,9 +66,29 @@ Best regards,
 Tickflo Team`,
 } satisfies EmailTemplate;
 
+const workspaceMemberRemoval = {
+  typeId: 5,
+  subject: 'Your access to {{workspace_name}} has been removed',
+  body: `Hello {{name}},
+
+You’ve been removed from {{workspace_name}}. 
+
+Contact your administrator if you belive this is a mistake.
+
+Best regards,  
+Tickflo Team`,
+} satisfies EmailTemplate;
+
 export const templates = {
   signup,
   forgotPassword,
   newWorkspaceMemberInvitation,
   existingWorkspaceMemberInvitation,
+  workspaceMemberRemoval,
 };
+
+export const workspaceTemplates = [
+  newWorkspaceMemberInvitation,
+  existingWorkspaceMemberInvitation,
+  workspaceMemberRemoval,
+];

@@ -5,14 +5,14 @@ import { InputError } from '../errors';
 import { SYSTEM_TEMPLATE_IDS } from './email-templates';
 
 export async function getEmailTemplateId({
-  templateId,
+  typeId,
   slug,
 }: {
-  templateId: number;
+  typeId: number;
   slug: string;
 }): Promise<number> {
-  if (SYSTEM_TEMPLATE_IDS.includes(templateId)) {
-    return templateId;
+  if (SYSTEM_TEMPLATE_IDS.includes(typeId)) {
+    return typeId;
   }
 
   const templates = await db
@@ -25,10 +25,12 @@ export async function getEmailTemplateId({
         eq(workspaces.slug, slug),
       ),
     )
-    .where(eq(emailTemplates.templateTypeId, templateId));
+    .where(eq(emailTemplates.templateTypeId, typeId));
 
   if (!templates || !templates.length) {
-    throw new InputError(`Template id: ${templateId} not found for ${slug}`);
+    throw new InputError(
+      `Template with typeId: ${typeId} not found for ${slug}`,
+    );
   }
 
   return templates[0].id;

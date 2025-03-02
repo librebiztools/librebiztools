@@ -1,5 +1,6 @@
 export * from './confirm-email';
 export * from './get-user-by-email';
+export * from './get-user-by-id';
 export * from './get-user-for-request';
 export * from './login';
 export * from './send-signup-email';
@@ -7,6 +8,8 @@ export * from './signup';
 export * from './get-roles';
 export * from './get-users';
 export * from './add-user';
+export * from './remove-user';
 export * from './get-workspace-invites-for-user-id';
 export * from './accept-workspace-invite';
 export * from './decline-workspace-invite';
+export * from './create-workspace';

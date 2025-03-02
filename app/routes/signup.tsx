@@ -3,6 +3,7 @@ import { Form, Link, data, redirect } from 'react-router';
 import { getUserByEmail, signup } from '~/api.server/auth';
 import { ApiError } from '~/api.server/errors';
 import { commitSession, getSession } from '~/api.server/session';
+import { ErrorAlert } from '~/components/error-alert';
 import config from '~/config';
 import { slugify } from '~/utils/slugify';
 import type { Route } from './+types/signup';
@@ -164,25 +165,7 @@ export default function Signup({
                 className="input"
                 placeholder="Confirm Password"
               />
-              {errorMessage && (
-                <div role="alert" className="alert alert-error">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6 shrink-0 stroke-current"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <title>Error</title>
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  <span>{errorMessage}.</span>
-                </div>
-              )}
+              {errorMessage && <ErrorAlert message={errorMessage} />}
               <button type="submit" className="btn btn-primary mt-4">
                 Signup
               </button>
