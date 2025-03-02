@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { expect, test } from 'vitest';
-import { AuthError, InputError } from '../errors';
+import { InputError } from '../errors';
 import { getUserByEmail } from '../users';
 import { confirmEmail } from './confirm-email';
 import { signup } from './signup';
@@ -22,7 +22,7 @@ test('Throw on missing code', async () => {
 test('Throw on invalid email', async () => {
   await expect(() =>
     confirmEmail({ email: faker.internet.email(), code: 'asdf' }),
-  ).rejects.toThrow(AuthError);
+  ).rejects.toThrow(InputError);
 });
 
 test('Throw on invalid code', async () => {
@@ -37,7 +37,7 @@ test('Throw on invalid code', async () => {
   });
 
   await expect(() => confirmEmail({ email, code: 'invalid' })).rejects.toThrow(
-    AuthError,
+    InputError,
   );
 });
 
@@ -88,5 +88,5 @@ test('Throw on already confirmed', async () => {
       email,
       code: user?.emailConfirmationCode,
     }),
-  ).rejects.toThrow(AuthError);
+  ).rejects.toThrow(InputError);
 });

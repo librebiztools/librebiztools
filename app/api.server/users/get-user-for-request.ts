@@ -8,7 +8,7 @@ type User = typeof users.$inferSelect;
 
 export async function getUserForRequest(
   request: Request,
-): Promise<User | null> {
+): Promise<User | undefined> {
   const url = new URL(request.url);
   const urlToken = url.searchParams.get('accessToken');
   if (urlToken && urlToken.length !== 0) {
@@ -27,8 +27,6 @@ export async function getUserForRequest(
   if (cookieToken) {
     return getUserForToken(cookieToken);
   }
-
-  return null;
 }
 
 async function getUserForToken(token: string): Promise<User> {

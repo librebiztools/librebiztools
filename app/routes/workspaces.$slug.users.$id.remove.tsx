@@ -15,18 +15,23 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return loginRedirect(session, request.url);
   }
 
-  const removeUserId = Number.parseInt(params.id || '', 10);
-  const removeUser = await getUserById(removeUserId);
-  if (!removeUser) {
-    session.flash('error', `User with id ${removeUserId} not found`);
-    return redirect('.', {
-      headers: {
-        'Set-Cookie': await commitSession(session),
-      },
+  try {
+    const removeUserId = Number.parseInt(params.id || '', 10);
+    return data({
+      removeUser: await getUserById(removeUserId),
     });
-  }
+  } catch (err) {
+    if (err instanceof ApiError) {
+      session.flash('error', err.message);
+      return redirect('..', {
+        headers: {
+          'Set-Cookie': await commitSession(session),
+        },
+      });
+    }
 
-  return data({ removeUser });
+    throw err;
+  }
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
@@ -62,10 +67,10 @@ export default function workspaceRemoveUser({
   return (
     <dialog className="modal" open={true}>
       <div className="modal-box">
-        <h3 className="font-bold text-lg">Remove User</h3>
+        <h3 className="font-bold text-lg"> Remove User </h3>
         <Form id="form-submit" method="post">
           <p>
-            {removeUser.name} will be removed from your workspace. All tickets
+            {removeUser.name} will be removed from your workspace.All tickets
             assigned to them will be unassigned.
           </p>
           {errorMessage && <ErrorAlert message={errorMessage} />}
@@ -87,7 +92,7 @@ export default function workspaceRemoveUser({
         method="get"
         className="modal-backdrop backdrop-brightness-50"
       >
-        <button type="submit">Close</button>
+        <button type="submit"> Close </button>
       </Form>
     </dialog>
   );

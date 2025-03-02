@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { db } from '../db';
 import { users } from '../db/schema';
-import { AuthError, InputError } from '../errors';
+import { InputError } from '../errors';
 import { getUserByEmail } from '../users';
 
 interface ConfirmEmailRequest {
@@ -17,12 +17,8 @@ export async function confirmEmail(request: ConfirmEmailRequest) {
 
   const user = await getUserByEmail(email);
 
-  if (
-    !user ||
-    user.emailConfirmed ||
-    user.emailConfirmationCode !== request.code
-  ) {
-    throw new AuthError('Invalid email or confirmation code');
+  if (user.emailConfirmed || user.emailConfirmationCode !== request.code) {
+    throw new InputError('Invalid email or confirmation code');
   }
 
   return await db

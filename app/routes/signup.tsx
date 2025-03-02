@@ -56,13 +56,28 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   const email = url.searchParams.get('email');
   if (email) {
-    const user = await getUserByEmail(email);
-    if (user) {
-      return data({
-        invited: true,
-        email: user.email,
-        name: user.name,
-      });
+    try {
+      const user = await getUserByEmail(email);
+      if (user) {
+        return data({
+          invited: true,
+          email: user.email,
+          name: user.name,
+        });
+      }
+    } catch (err) {
+      if (err instanceof ApiError) {
+        const session = await getSession(request.headers.get('Cookie'));
+        session.flash('error', err.message);
+
+        return redirect('.', {
+          headers: {
+            'Set-Cookie': await commitSession(session),
+          },
+        });
+      }
+
+      throw err;
     }
   }
 }
@@ -92,7 +107,7 @@ export default function Signup({
     <div className="flex min-h-screen flex-col items-center bg-base-200 pt-4">
       <div className="card w-full max-w-sm flex-shrink-0 bg-base-100 shadow-2xl">
         <div className="card-body">
-          <h2 className="card-title">Signup</h2>
+          <h2 className="card-title"> Signup </h2>
           <Form method="post">
             <fieldset className="fieldset">
               <label htmlFor="name" className="fieldset-label">
@@ -171,7 +186,7 @@ export default function Signup({
                 Signup
               </button>
               <div className="text-center">
-                Already have an account?{' '}
+                Already have an account ?{' '}
                 <Link to="/login" className="link link-hover text-xs">
                   Login
                 </Link>
