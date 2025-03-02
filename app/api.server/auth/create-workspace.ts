@@ -7,11 +7,8 @@ import {
   userWorkspaceRoles,
   workspaces,
 } from '../db/schema';
-import {
-  INVITE_EXISTING_TEMPLATE_ID,
-  INVITE_NEW_TEMPLATE_ID,
-  templates,
-} from '../email';
+import { workspaceTemplates } from '../email';
+import { InputError } from '../errors';
 
 export async function createWorkspace({
   userId,
@@ -19,9 +16,19 @@ export async function createWorkspace({
   tx,
 }: {
   userId: number;
-  name: string;
+  name: string | undefined;
   tx: TransactionType;
 }): Promise<{ slug: string }> {
+  if (
+    !name ||
+    name.length < config.WORKSPACE.MIN_NAME_LENGTH ||
+    name.length > config.WORKSPACE.MAX_NAME_LENGTH
+  ) {
+    throw new InputError(
+      `Workspace name must be between ${config.WORKSPACE.MIN_NAME_LENGTH} and ${config.WORKSPACE.MAX_NAME_LENGTH} characters in length`,
+    );
+  }
+
   const slug = slugify(name, config.WORKSPACE.MAX_SLUG_LENGTH);
   const workspaceRows = await tx
     .insert(workspaces)
@@ -68,22 +75,15 @@ export async function createWorkspace({
     createdBy: userId,
   });
 
-  await tx.insert(emailTemplates).values([
-    {
+  await tx.insert(emailTemplates).values(
+    workspaceTemplates.map((t) => ({
       workspaceId: workspace.id,
-      templateTypeId: INVITE_EXISTING_TEMPLATE_ID,
-      subject: templates.existingWorkspaceMemberInvitation.subject,
-      body: templates.existingWorkspaceMemberInvitation.body,
+      templateTypeId: t.typeId,
+      subject: t.subject,
+      body: t.body,
       createdBy: userId,
-    },
-    {
-      workspaceId: workspace.id,
-      templateTypeId: INVITE_NEW_TEMPLATE_ID,
-      subject: templates.newWorkspaceMemberInvitation.subject,
-      body: templates.newWorkspaceMemberInvitation.body,
-      createdBy: userId,
-    },
-  ]);
+    })),
+  );
 
   return { slug };
 }

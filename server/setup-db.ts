@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm';
 import config from '~/api.server/config';
 import { db } from '~/api.server/db';
+import { insertMissingEmailTemplates } from '~/api.server/db/insert-missing-email-templates';
 import { applyMigrations } from '~/api.server/db/migrate';
 import { seed } from '~/api.server/db/seed';
 
@@ -21,6 +22,8 @@ export async function setupDb() {
   console.log('Seeding data...');
 
   await seed();
+
+  await insertMissingEmailTemplates();
 
   console.log('Database seeded!');
 }

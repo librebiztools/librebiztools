@@ -1,6 +1,6 @@
 import { FaEnvelope, FaPlus, FaSearch, FaTrash, FaUsers } from 'react-icons/fa';
 import { FaBoltLightning, FaPencil, FaPerson, FaShield } from 'react-icons/fa6';
-import { Link, Outlet, data } from 'react-router';
+import { Link, Outlet, data, href } from 'react-router';
 import { getUsers } from '~/api.server/auth';
 import { getSession } from '~/api.server/session';
 import { loginRedirect } from '~/api.server/utils';
@@ -19,7 +19,10 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   return data({ users });
 }
 
-export default function workspaceUsers({ loaderData }: Route.ComponentProps) {
+export default function workspaceUsers({
+  loaderData,
+  params,
+}: Route.ComponentProps) {
   const { users } = loaderData;
 
   return (
@@ -83,8 +86,14 @@ export default function workspaceUsers({ loaderData }: Route.ComponentProps) {
                         </li>
                       )}
                       <li>
-                        <Link to="./delete" className="text-error">
-                          <FaTrash /> Delete
+                        <Link
+                          to={href('/workspaces/:slug/users/:id/remove', {
+                            slug: params.slug,
+                            id: user.id.toString(),
+                          })}
+                          className="text-error"
+                        >
+                          <FaTrash /> Remove
                         </Link>
                       </li>
                     </ul>

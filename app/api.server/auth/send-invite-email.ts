@@ -2,12 +2,7 @@ import { and, eq } from 'drizzle-orm';
 import config from '../config';
 import { type TransactionType, db } from '../db';
 import { userWorkspaceRoles, users, workspaces } from '../db/schema';
-import {
-  INVITE_EXISTING_TEMPLATE_ID,
-  INVITE_NEW_TEMPLATE_ID,
-  getEmailTemplateId,
-  sendEmail,
-} from '../email';
+import { getEmailTemplateId, sendEmail, templates } from '../email';
 import { InputError } from '../errors';
 
 export async function sendInviteEmail({
@@ -48,7 +43,7 @@ export async function sendInviteEmail({
     await sendEmail({
       to: role.email,
       templateId: await getEmailTemplateId({
-        templateId: INVITE_EXISTING_TEMPLATE_ID,
+        typeId: templates.existingWorkspaceMemberInvitation.typeId,
         slug,
       }),
       vars: {
@@ -61,7 +56,7 @@ export async function sendInviteEmail({
     await sendEmail({
       to: role.email,
       templateId: await getEmailTemplateId({
-        templateId: INVITE_NEW_TEMPLATE_ID,
+        typeId: templates.newWorkspaceMemberInvitation.typeId,
         slug,
       }),
       vars: {

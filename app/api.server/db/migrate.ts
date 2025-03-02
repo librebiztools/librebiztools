@@ -1,9 +1,7 @@
 import { migrate } from 'drizzle-orm/pglite/migrator';
 
-import { db } from '~/api.server/db';
+import { db } from '.';
 
-async function applyMigrations() {
+export async function applyMigrations() {
   await migrate(db, { migrationsFolder: 'drizzle' });
 }
-
-export { applyMigrations };

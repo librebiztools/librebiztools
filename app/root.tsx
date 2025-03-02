@@ -12,7 +12,8 @@ import {
 } from 'react-router';
 
 import { useEffect, useState } from 'react';
-import { FaMoon, FaSun } from 'react-icons/fa';
+import { FaBell, FaMoon, FaSignOutAlt, FaSun, FaUser } from 'react-icons/fa';
+import { FaPeopleGroup } from 'react-icons/fa6';
 import type { Route } from './+types/root';
 import { getUserForRequest } from './api.server/auth';
 import { ApiError } from './api.server/errors';
@@ -130,20 +131,47 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 </Form>
               </li>
               <li>
+                <Link to="/notifications">
+                  <FaBell />
+                  Inbox
+                  <span className="badge badge-xs badge-primary">99+</span>
+                </Link>
+              </li>
+              <li>
                 {!user && <Link to="/login">Login</Link>}
                 {user && (
-                  <details>
-                    <summary>{user.email}</summary>
-                    <ul>
+                  <div className="dropdown dropdown-end">
+                    {/*biome-ignore lint/a11y/useSemanticElements: reason required for safari*/}
+                    <div tabIndex={0} role="button">
+                      {user.email}
+                    </div>
+                    <ul className="dropdown-content menu z-1 w-52 rounded-box bg-base-100 p-2 shadow-sm">
+                      <li>
+                        <Link
+                          to="/profile"
+                          onClick={(e) => e.currentTarget.blur()}
+                        >
+                          <FaUser /> Profile
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="/workspaces"
+                          onClick={(e) => e.currentTarget.blur()}
+                        >
+                          <FaPeopleGroup /> Workspaces
+                        </Link>
+                      </li>
                       <li>
                         <form method="post" action="/logout">
                           <button type="submit" className="cursor-pointer">
+                            <FaSignOutAlt className="mr-2 inline" />
                             Logout
                           </button>
                         </form>
                       </li>
                     </ul>
-                  </details>
+                  </div>
                 )}
               </li>
             </ul>

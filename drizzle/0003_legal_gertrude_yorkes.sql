@@ -1,0 +1,1 @@
+ALTER TABLE "email_templates" ADD CONSTRAINT "email_templates_workspace_id_template_type_id_unique" UNIQUE("workspace_id","template_type_id");
