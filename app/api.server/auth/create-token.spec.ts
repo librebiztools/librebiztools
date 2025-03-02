@@ -18,11 +18,7 @@ test('Creates valid token', async () => {
     workspaceName: faker.company.name(),
   });
 
-  const user = await getUserByEmail(email);
-
-  if (!user) {
-    throw new Error('Expected user to be defined');
-  }
+  const user = (await getUserByEmail(email)).getOrThrow();
 
   const token = await db.query.tokens.findFirst({
     where: eq(tokens.userId, user.id),

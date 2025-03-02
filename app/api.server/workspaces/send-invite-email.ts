@@ -45,6 +45,7 @@ export async function sendInviteEmail({
       templateId: await getEmailTemplateId({
         typeId: templates.existingWorkspaceMemberInvitation.typeId,
         slug,
+        tx,
       }),
       vars: {
         name: role.name,
@@ -58,6 +59,7 @@ export async function sendInviteEmail({
       templateId: await getEmailTemplateId({
         typeId: templates.newWorkspaceMemberInvitation.typeId,
         slug,
+        tx,
       }),
       vars: {
         name: role.name,

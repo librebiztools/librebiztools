@@ -1,5 +1,5 @@
 import { and, eq } from 'drizzle-orm';
-import { db } from '../db';
+import { type TransactionType, db } from '../db';
 import { emailTemplates, workspaces } from '../db/schema';
 import { InputError } from '../errors';
 import { SYSTEM_TEMPLATE_IDS } from './email-templates';
@@ -7,15 +7,17 @@ import { SYSTEM_TEMPLATE_IDS } from './email-templates';
 export async function getEmailTemplateId({
   typeId,
   slug,
+  tx,
 }: {
   typeId: number;
   slug: string;
+  tx: TransactionType | undefined;
 }): Promise<number> {
   if (SYSTEM_TEMPLATE_IDS.includes(typeId)) {
     return typeId;
   }
 
-  const templates = await db
+  const templates = await (tx || db)
     .select({ id: emailTemplates.id })
     .from(emailTemplates)
     .innerJoin(

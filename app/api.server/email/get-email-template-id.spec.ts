@@ -11,7 +11,11 @@ import { templates } from './email-templates';
 import { getEmailTemplateId } from './get-email-template-id';
 
 test('Returns system template', async () => {
-  const templateId = await getEmailTemplateId({ typeId: 1, slug: 'foobar' });
+  const templateId = await getEmailTemplateId({
+    typeId: 1,
+    slug: 'foobar',
+    tx: undefined,
+  });
   expect(templateId).toBe(1);
 });
 
@@ -31,6 +35,7 @@ test('Returns workspace template', async () => {
   await getEmailTemplateId({
     typeId: templates.workspaceMemberRemoval.typeId,
     slug,
+    tx: undefined,
   });
 });
 
@@ -67,6 +72,7 @@ test('Throws for missing template', async () => {
     await getEmailTemplateId({
       typeId: templates.workspaceMemberRemoval.typeId,
       slug,
+      tx: undefined,
     });
   }).rejects.toThrow(InputError);
 });

@@ -1,6 +1,5 @@
 import { faker } from '@faker-js/faker';
 import { expect, test } from 'vitest';
-import { InputError } from '../errors';
 import { getUserByEmail } from '../users';
 import { confirmEmail } from './confirm-email';
 import { signup } from './signup';
@@ -8,21 +7,24 @@ import { signup } from './signup';
 const PASSWORD = 'password';
 
 test('Throw on missing email', async () => {
-  await expect(() => confirmEmail({ email: '', code: 'code' })).rejects.toThrow(
-    InputError,
-  );
+  const result = await confirmEmail({ email: '', code: 'code' });
+  expect(result.error).toBeDefined();
 });
 
 test('Throw on missing code', async () => {
-  await expect(() =>
-    confirmEmail({ email: faker.internet.email(), code: '' }),
-  ).rejects.toThrow(InputError);
+  const result = await confirmEmail({
+    email: faker.internet.email(),
+    code: '',
+  });
+  expect(result.error).toBeDefined();
 });
 
 test('Throw on invalid email', async () => {
-  await expect(() =>
-    confirmEmail({ email: faker.internet.email(), code: 'asdf' }),
-  ).rejects.toThrow(InputError);
+  const result = await confirmEmail({
+    email: faker.internet.email(),
+    code: 'asdf',
+  });
+  expect(result.error).toBeDefined();
 });
 
 test('Throw on invalid code', async () => {
@@ -36,9 +38,8 @@ test('Throw on invalid code', async () => {
     confirmPassword: PASSWORD,
   });
 
-  await expect(() => confirmEmail({ email, code: 'invalid' })).rejects.toThrow(
-    InputError,
-  );
+  const result = await confirmEmail({ email, code: 'invalid' });
+  expect(result.error).toBeDefined();
 });
 
 test('Mark user confirmed with correct code', async () => {
@@ -52,14 +53,16 @@ test('Mark user confirmed with correct code', async () => {
     confirmPassword: PASSWORD,
   });
 
-  let user = await getUserByEmail(email);
+  let user = (await getUserByEmail(email)).getOrThrow();
 
-  await confirmEmail({
-    email,
-    code: user?.emailConfirmationCode,
-  });
+  (
+    await confirmEmail({
+      email,
+      code: user?.emailConfirmationCode,
+    })
+  ).getOrThrow();
 
-  user = await getUserByEmail(email);
+  user = (await getUserByEmail(email)).getOrThrow();
 
   expect(user?.emailConfirmed).toBe(true);
   expect(user?.emailConfirmationCode).toBeNull();
@@ -76,17 +79,19 @@ test('Throw on already confirmed', async () => {
     confirmPassword: PASSWORD,
   });
 
-  const user = await getUserByEmail(email);
+  const user = (await getUserByEmail(email)).getOrThrow();
 
-  await confirmEmail({
+  (
+    await confirmEmail({
+      email,
+      code: user?.emailConfirmationCode,
+    })
+  ).getOrThrow();
+
+  const result = await confirmEmail({
     email,
     code: user?.emailConfirmationCode,
   });
 
-  await expect(() =>
-    confirmEmail({
-      email,
-      code: user?.emailConfirmationCode,
-    }),
-  ).rejects.toThrow(InputError);
+  expect(result.error).toBeDefined();
 });

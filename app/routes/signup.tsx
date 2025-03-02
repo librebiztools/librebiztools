@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Form, Link, data, redirect } from 'react-router';
+import { Result } from 'typescript-result';
 import { signup } from '~/api.server/auth';
 import { ApiError } from '~/api.server/errors';
 import { commitSession, getSession } from '~/api.server/session';
@@ -56,17 +57,15 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   const email = url.searchParams.get('email');
   if (email) {
-    try {
-      const user = await getUserByEmail(email);
-      if (user) {
+    return await Result.fromAsync(getUserByEmail(email)).fold(
+      (user) => {
         return data({
           invited: true,
           email: user.email,
           name: user.name,
         });
-      }
-    } catch (err) {
-      if (err instanceof ApiError) {
+      },
+      async (err) => {
         const session = await getSession(request.headers.get('Cookie'));
         session.flash('error', err.message);
 
@@ -75,10 +74,8 @@ export async function loader({ request }: Route.LoaderArgs) {
             'Set-Cookie': await commitSession(session),
           },
         });
-      }
-
-      throw err;
-    }
+      },
+    );
   }
 }
 

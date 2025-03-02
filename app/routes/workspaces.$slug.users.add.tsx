@@ -1,7 +1,6 @@
 import { FaPlus, FaUndo } from 'react-icons/fa';
 import { Form, data, redirect } from 'react-router';
 import { getRoles } from '~/api.server/auth';
-import { ApiError } from '~/api.server/errors';
 import { loginRedirect } from '~/api.server/helpers';
 import { getSession } from '~/api.server/session';
 import { addUser } from '~/api.server/users';
@@ -32,22 +31,21 @@ export async function action({ request, params }: Route.ActionArgs) {
     return loginRedirect(session, request.url);
   }
 
-  try {
-    const formData = await request.formData();
-    const name = formData.get('name')?.toString();
-    const email = formData.get('email')?.toString();
-    const roleId = Number.parseInt(formData.get('role')?.toString() || '', 10);
+  const formData = await request.formData();
+  const name = formData.get('name')?.toString();
+  const email = formData.get('email')?.toString();
+  const roleId = Number.parseInt(formData.get('role')?.toString() || '', 10);
 
-    await addUser({ userId, slug: params.slug, name, email, roleId });
-
-    return redirect('..');
-  } catch (err) {
-    if (err instanceof ApiError) {
+  return (
+    await addUser({ userId, slug: params.slug, name, email, roleId })
+  ).fold(
+    () => {
+      return redirect('..');
+    },
+    (err) => {
       return data({ error: err.message });
-    }
-
-    throw err;
-  }
+    },
+  );
 }
 
 export default function workspaceAddUser({
@@ -60,7 +58,7 @@ export default function workspaceAddUser({
   return (
     <dialog className="modal" open={true}>
       <div className="modal-box">
-        <h3 className="font-bold text-lg">Add User</h3>
+        <h3 className="font-bold text-lg"> Add User </h3>
         <Form id="form-submit" method="post">
           <input type="hidden" name="action" value="add-user" />
           <fieldset className="fieldset">
@@ -117,7 +115,7 @@ export default function workspaceAddUser({
         method="get"
         className="modal-backdrop backdrop-brightness-50"
       >
-        <button type="submit">Close</button>
+        <button type="submit"> Close </button>
       </Form>
     </dialog>
   );

@@ -15,23 +15,22 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     return loginRedirect(session, request.url);
   }
 
-  try {
-    const removeUserId = Number.parseInt(params.id || '', 10);
-    return data({
-      removeUser: await getUserById(removeUserId),
-    });
-  } catch (err) {
-    if (err instanceof ApiError) {
+  const removeUserId = Number.parseInt(params.id || '', 10);
+  return (await getUserById(removeUserId)).fold(
+    (removeUser) => {
+      return data({
+        removeUser,
+      });
+    },
+    async (err) => {
       session.flash('error', err.message);
       return redirect('..', {
         headers: {
           'Set-Cookie': await commitSession(session),
         },
       });
-    }
-
-    throw err;
-  }
+    },
+  );
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
