@@ -3,7 +3,7 @@ import { db } from '../db';
 import { userWorkspaceRoles, users } from '../db/schema';
 import { getEmailTemplateId, sendEmail, templates } from '../email';
 import { InputError } from '../errors';
-import { getWorkspaceBySlug } from './get-workspace-by-slug';
+import { getWorkspaceBySlug } from '../workspaces';
 
 // TODO: permissions
 

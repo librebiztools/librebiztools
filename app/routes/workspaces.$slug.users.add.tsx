@@ -1,9 +1,10 @@
 import { FaPlus, FaUndo } from 'react-icons/fa';
 import { Form, data, redirect } from 'react-router';
-import { addUser, getRoles } from '~/api.server/auth';
+import { getRoles } from '~/api.server/auth';
 import { ApiError } from '~/api.server/errors';
+import { loginRedirect } from '~/api.server/helpers';
 import { getSession } from '~/api.server/session';
-import { loginRedirect } from '~/api.server/utils';
+import { addUser } from '~/api.server/users';
 import { ErrorAlert } from '~/components/error-alert';
 import config from '~/config';
 import type { Route } from './+types/workspaces.$slug.users.add';

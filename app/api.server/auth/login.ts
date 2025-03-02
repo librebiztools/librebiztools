@@ -35,7 +35,7 @@ export async function login(request: LoginRequest): Promise<LoginResult> {
       where: eq(users.email, email),
     });
 
-    if (!user) {
+    if (!user || !user.passwordHash) {
       // Validate hash anyway to prevent attacker from knowing account doesn't exist
       await validateHash(
         'user@example.compassword',

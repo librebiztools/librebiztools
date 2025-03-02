@@ -1,7 +1,7 @@
 import { redirect } from 'react-router';
-import { getUserForRequest } from '~/api.server/auth';
 import { ApiError } from '~/api.server/errors';
 import { destroySession, getSession } from '~/api.server/session';
+import { getUserForRequest } from '~/api.server/users';
 import type { Route } from './+types/_index';
 
 export async function loader({ request }: Route.LoaderArgs) {

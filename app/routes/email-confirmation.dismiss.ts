@@ -1,7 +1,7 @@
 import { redirect } from 'react-router';
-import { getUserForRequest } from '~/api.server/auth';
 import { AuthError } from '~/api.server/errors';
 import { commitSession, getSession } from '~/api.server/session';
+import { getUserForRequest } from '~/api.server/users';
 import type { Route } from './+types/email-confirmation.dismiss';
 
 export async function action({ request }: Route.ActionArgs) {

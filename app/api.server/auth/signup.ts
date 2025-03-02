@@ -4,8 +4,8 @@ import config from '../config';
 import { db } from '../db';
 import { userWorkspaceRoles, users, workspaces } from '../db/schema';
 import { ApiError, InputError } from '../errors';
+import { createWorkspace } from '../workspaces';
 import { createToken } from './create-token';
-import { createWorkspace } from './create-workspace';
 import { createHash } from './hash';
 import { sendSignupEmail } from './send-signup-email';
 

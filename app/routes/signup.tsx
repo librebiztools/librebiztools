@@ -1,8 +1,9 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Form, Link, data, redirect } from 'react-router';
-import { getUserByEmail, signup } from '~/api.server/auth';
+import { signup } from '~/api.server/auth';
 import { ApiError } from '~/api.server/errors';
 import { commitSession, getSession } from '~/api.server/session';
+import { getUserByEmail } from '~/api.server/users';
 import { ErrorAlert } from '~/components/error-alert';
 import config from '~/config';
 import { slugify } from '~/utils/slugify';

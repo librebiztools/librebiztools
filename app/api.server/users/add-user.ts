@@ -4,9 +4,8 @@ import config from '../config';
 import { db } from '../db';
 import { roles, userWorkspaceRoles, users } from '../db/schema';
 import { InputError } from '../errors';
+import { getWorkspaceBySlug, sendInviteEmail } from '../workspaces';
 import { getUserByEmail } from './get-user-by-email';
-import { getWorkspaceBySlug } from './get-workspace-by-slug';
-import { sendInviteEmail } from './send-invite-email';
 
 // TODO: permissions
 

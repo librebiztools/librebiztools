@@ -2,8 +2,8 @@ import { FaPlus, FaSearch, FaTrash } from 'react-icons/fa';
 import { FaPencil, FaShield } from 'react-icons/fa6';
 import { data } from 'react-router';
 import { getRoles } from '~/api.server/auth';
+import { loginRedirect } from '~/api.server/helpers';
 import { getSession } from '~/api.server/session';
-import { loginRedirect } from '~/api.server/utils';
 import type { Route } from './+types/workspaces.$slug.roles';
 
 export async function loader({ request, params }: Route.LoaderArgs) {

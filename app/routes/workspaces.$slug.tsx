@@ -1,9 +1,9 @@
 import { FaLock, FaUsers } from 'react-icons/fa';
 import { FaShield } from 'react-icons/fa6';
 import { Link, NavLink, Outlet, data } from 'react-router';
+import { errorRedirect, loginRedirect } from '~/api.server/helpers';
 import { commitSession, getSession } from '~/api.server/session';
-import { errorRedirect, loginRedirect } from '~/api.server/utils';
-import { getWorkspaceForUser } from '~/api.server/workspace';
+import { getWorkspaceForUser } from '~/api.server/workspaces';
 import type { Route } from './+types/workspaces.$slug';
 
 export async function loader({ request, params }: Route.LoaderArgs) {

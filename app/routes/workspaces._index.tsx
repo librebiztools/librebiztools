@@ -1,13 +1,13 @@
 import { FaCheck, FaPlus, FaTrash } from 'react-icons/fa';
 import { Form, Link, data, href, redirect } from 'react-router';
+import { ApiError } from '~/api.server/errors';
+import { loginRedirect } from '~/api.server/helpers';
+import { commitSession, getSession } from '~/api.server/session';
 import {
   acceptWorkspaceInvite,
   declinetWorkspaceInvite,
-} from '~/api.server/auth';
-import { ApiError } from '~/api.server/errors';
-import { commitSession, getSession } from '~/api.server/session';
-import { loginRedirect } from '~/api.server/utils';
-import { getWorkspacesForUser } from '~/api.server/workspace';
+  getWorkspacesForUser,
+} from '~/api.server/workspaces';
 import type { Route } from './+types/workspaces._index';
 
 export async function loader({ request }: Route.LoaderArgs) {

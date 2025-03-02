@@ -1,11 +1,11 @@
 import { useCallback, useMemo, useState } from 'react';
 import { FaCheck } from 'react-icons/fa';
 import { Form, data, href, redirect } from 'react-router';
-import { createWorkspace } from '~/api.server/auth';
 import { db } from '~/api.server/db';
 import { ApiError } from '~/api.server/errors';
+import { loginRedirect } from '~/api.server/helpers';
 import { getSession } from '~/api.server/session';
-import { loginRedirect } from '~/api.server/utils';
+import { createWorkspace } from '~/api.server/workspaces';
 import { ErrorAlert } from '~/components/error-alert';
 import config from '~/config';
 import { slugify } from '~/utils/slugify';
