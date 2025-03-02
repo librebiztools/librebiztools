@@ -1,9 +1,5 @@
 import { eq } from 'drizzle-orm';
-import {
-  FORGOT_PASSWORD_TEMPLATE_ID,
-  SIGNUP_TEMPLATE_ID,
-  templates,
-} from '../email';
+import { templates } from '../email';
 import { db } from './index';
 import { emailTemplates, meta } from './schema';
 
@@ -18,12 +14,12 @@ export async function seed() {
 
   await db.insert(emailTemplates).values([
     {
-      templateTypeId: SIGNUP_TEMPLATE_ID,
+      templateTypeId: templates.signup.typeId,
       subject: templates.signup.subject,
       body: templates.signup.body,
     },
     {
-      templateTypeId: FORGOT_PASSWORD_TEMPLATE_ID,
+      templateTypeId: templates.forgotPassword.typeId,
       subject: templates.forgotPassword.subject,
       body: templates.forgotPassword.body,
     },
