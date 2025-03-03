@@ -55,8 +55,6 @@ jobs:
       run: cp .env.example .env
     - name: Apply db migrations
       run: pnpm db:migrate
-    - name: List files in app
-      run: ls -Ra app
     - name: Run Playwright tests
       run: pnpm e2e
     - uses: actions/upload-artifact@v4
