@@ -17,7 +17,8 @@ export async function insertMissingEmailTemplates() {
     })),
   );
 
-  console.log('templates', templates);
+  throw new Error(`templates: ${JSON.stringify(templates)}`);
 
+  // biome-ignore lint/correctness/noUnreachable: <explanation>
   await db.insert(emailTemplates).values(templates).onConflictDoNothing();
 }
