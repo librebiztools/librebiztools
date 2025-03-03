@@ -13,13 +13,19 @@ export type Context = {
 
 export async function getContext(request: Request): Promise<Context> {
   const cookie = request.headers.get('Cookie');
-
-  const context: Context = {
+  return {
     session: await getSession(cookie),
     preferences: await getPreferences(cookie),
     tx: undefined,
     config,
   };
+}
 
-  return context;
+export async function getTestContext(): Promise<Context> {
+  return {
+    session: await getSession(''),
+    preferences: await getPreferences(''),
+    tx: undefined,
+    config,
+  };
 }

@@ -1,151 +1,223 @@
 import { faker } from '@faker-js/faker';
 import { and, eq } from 'drizzle-orm';
 import { expect, test } from 'vitest';
-import { db } from '../db';
-import { emails, users } from '../db/schema';
-import { InputError } from '../errors';
+import { getTestContext } from '~/.server/context';
+import { db } from '../../db';
+import { emails, users } from '../../db/schema';
+import { InputError } from '../../errors';
 import { signup } from './signup';
 
 const PASSWORD = 'PASSWORD';
 
 test('Throw on missing email', async () => {
-  await expect(() =>
-    signup({
-      name: faker.person.firstName(),
-      workspaceName: faker.company.name(),
-      email: '',
-      password: PASSWORD,
-      confirmPassword: PASSWORD,
-    }),
-  ).rejects.toThrow(InputError);
+  const context = await getTestContext();
+  const error = (
+    await signup(
+      {
+        name: faker.person.firstName(),
+        workspaceName: faker.company.name(),
+        email: '',
+        password: PASSWORD,
+        confirmPassword: PASSWORD,
+      },
+      context,
+    )
+  ).unwrapErr();
+
+  expect(error).toBeInstanceOf(InputError);
 });
 
 test('Throw on missing name', async () => {
-  await expect(() =>
-    signup({
-      name: '',
-      workspaceName: faker.company.name(),
-      email: faker.internet.email(),
-      password: PASSWORD,
-      confirmPassword: PASSWORD,
-    }),
-  ).rejects.toThrow(InputError);
+  const context = await getTestContext();
+  const error = (
+    await signup(
+      {
+        name: '',
+        workspaceName: faker.company.name(),
+        email: faker.internet.email(),
+        password: PASSWORD,
+        confirmPassword: PASSWORD,
+      },
+      context,
+    )
+  ).unwrapErr();
+
+  expect(error).toBeInstanceOf(InputError);
 });
 
 test('Throw on missing workspace name', async () => {
-  await expect(() =>
-    signup({
-      name: faker.person.firstName(),
-      workspaceName: '',
-      email: faker.internet.email(),
-      password: PASSWORD,
-      confirmPassword: PASSWORD,
-    }),
-  ).rejects.toThrow(InputError);
+  const context = await getTestContext();
+  const error = (
+    await signup(
+      {
+        name: faker.person.firstName(),
+        workspaceName: '',
+        email: faker.internet.email(),
+        password: PASSWORD,
+        confirmPassword: PASSWORD,
+      },
+      context,
+    )
+  ).unwrapErr();
+
+  expect(error).toBeInstanceOf(InputError);
 });
 
 test('Throw on missing password', async () => {
-  await expect(() =>
-    signup({
-      name: faker.person.firstName(),
-      workspaceName: faker.company.name(),
-      email: faker.internet.email(),
-      password: '',
-      confirmPassword: PASSWORD,
-    }),
-  ).rejects.toThrow(InputError);
+  const context = await getTestContext();
+  const error = (
+    await signup(
+      {
+        name: faker.person.firstName(),
+        workspaceName: faker.company.name(),
+        email: faker.internet.email(),
+        password: '',
+        confirmPassword: PASSWORD,
+      },
+      context,
+    )
+  ).unwrapErr();
+
+  expect(error).toBeInstanceOf(InputError);
 });
 
 test('Throw on missing confirm password', async () => {
-  await expect(() =>
-    signup({
-      name: faker.person.firstName(),
-      workspaceName: faker.company.name(),
-      email: faker.internet.email(),
-      password: PASSWORD,
-      confirmPassword: '',
-    }),
-  ).rejects.toThrow(InputError);
+  const context = await getTestContext();
+  const error = (
+    await signup(
+      {
+        name: faker.person.firstName(),
+        workspaceName: faker.company.name(),
+        email: faker.internet.email(),
+        password: PASSWORD,
+        confirmPassword: '',
+      },
+      context,
+    )
+  ).unwrapErr();
+
+  expect(error).toBeInstanceOf(InputError);
 });
 
 test('Throw on mismatched passwords', async () => {
-  await expect(() =>
-    signup({
-      name: faker.person.firstName(),
-      workspaceName: faker.company.name(),
-      email: faker.internet.email(),
-      password: PASSWORD,
-      confirmPassword: 'wrong',
-    }),
-  ).rejects.toThrow(InputError);
+  const context = await getTestContext();
+  const error = (
+    await signup(
+      {
+        name: faker.person.firstName(),
+        workspaceName: faker.company.name(),
+        email: faker.internet.email(),
+        password: PASSWORD,
+        confirmPassword: 'wrong',
+      },
+      context,
+    )
+  ).unwrapErr();
+
+  expect(error).toBeInstanceOf(InputError);
 });
 
 test('Throw on existing user', async () => {
+  const context = await getTestContext();
   const name = faker.person.firstName();
   const email = faker.internet.email();
 
-  await signup({
-    name,
-    workspaceName: faker.company.name(),
-    email,
-    password: PASSWORD,
-    confirmPassword: PASSWORD,
-  });
+  (
+    await signup(
+      {
+        name,
+        workspaceName: faker.company.name(),
+        email,
+        password: PASSWORD,
+        confirmPassword: PASSWORD,
+      },
+      context,
+    )
+  ).unwrap();
 
-  await expect(() =>
-    signup({
-      name,
-      workspaceName: faker.company.name(),
-      email,
-      password: PASSWORD,
-      confirmPassword: PASSWORD,
-    }),
-  ).rejects.toThrow(InputError);
+  const error = (
+    await signup(
+      {
+        name,
+        workspaceName: faker.company.name(),
+        email,
+        password: PASSWORD,
+        confirmPassword: PASSWORD,
+      },
+      context,
+    )
+  ).unwrapErr();
+
+  expect(error).toBeInstanceOf(InputError);
 });
 
 test('Throw on existing workspace', async () => {
+  const context = await getTestContext();
   const workspaceName = faker.company.name();
 
-  await signup({
-    name: faker.person.firstName(),
-    workspaceName,
-    email: faker.internet.email(),
-    password: PASSWORD,
-    confirmPassword: PASSWORD,
-  });
+  (
+    await signup(
+      {
+        name: faker.person.firstName(),
+        workspaceName,
+        email: faker.internet.email(),
+        password: PASSWORD,
+        confirmPassword: PASSWORD,
+      },
+      context,
+    )
+  ).unwrap();
 
-  await expect(() =>
-    signup({
-      name: faker.person.firstName(),
-      workspaceName: workspaceName,
-      email: faker.internet.email(),
-      password: PASSWORD,
-      confirmPassword: PASSWORD,
-    }),
-  ).rejects.toThrow(InputError);
+  const error = (
+    await signup(
+      {
+        name: faker.person.firstName(),
+        workspaceName: workspaceName,
+        email: faker.internet.email(),
+        password: PASSWORD,
+        confirmPassword: PASSWORD,
+      },
+      context,
+    )
+  ).unwrapErr();
+
+  expect(error).toBeInstanceOf(InputError);
 });
 
 test('Return token on valid signup', async () => {
-  const result = await signup({
-    name: faker.person.firstName(),
-    workspaceName: faker.company.name(),
-    email: faker.internet.email(),
-    password: PASSWORD,
-    confirmPassword: PASSWORD,
-  });
+  const context = await getTestContext();
+  const result = (
+    await signup(
+      {
+        name: faker.person.firstName(),
+        workspaceName: faker.company.name(),
+        email: faker.internet.email(),
+        password: PASSWORD,
+        confirmPassword: PASSWORD,
+      },
+      context,
+    )
+  ).unwrap();
+
   expect(result.token).toBeDefined();
 });
 
 test('Send signup email on valid signup', async () => {
+  const context = await getTestContext();
   const email = faker.internet.email();
 
-  await signup({
-    name: faker.person.firstName(),
-    workspaceName: faker.company.name(),
-    email,
-    password: PASSWORD,
-    confirmPassword: PASSWORD,
-  });
+  (
+    await signup(
+      {
+        name: faker.person.firstName(),
+        workspaceName: faker.company.name(),
+        email,
+        password: PASSWORD,
+        confirmPassword: PASSWORD,
+      },
+      context,
+    )
+  ).unwrap();
 
   const row = await db.query.emails.findFirst({
     where: and(eq(emails.to, email.toLowerCase()), eq(emails.templateId, 1)),
@@ -155,15 +227,21 @@ test('Send signup email on valid signup', async () => {
 });
 
 test('Create workspace with default roles on valid signup', async () => {
+  const context = await getTestContext();
   const email = faker.internet.email();
 
-  await signup({
-    name: faker.person.firstName(),
-    workspaceName: faker.company.name(),
-    email,
-    password: PASSWORD,
-    confirmPassword: PASSWORD,
-  });
+  (
+    await signup(
+      {
+        name: faker.person.firstName(),
+        workspaceName: faker.company.name(),
+        email,
+        password: PASSWORD,
+        confirmPassword: PASSWORD,
+      },
+      context,
+    )
+  ).unwrap();
 
   const row = await db.query.users.findFirst({
     where: eq(users.email, email.toLowerCase()),

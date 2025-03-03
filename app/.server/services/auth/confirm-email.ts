@@ -38,7 +38,7 @@ export async function confirmEmail(
       emailConfirmed: true,
       emailConfirmationCode: null,
     })
-    .where(eq(users.email, email));
+    .where(eq(users.email, email.toLowerCase()));
 
   return Ok.EMPTY;
 }

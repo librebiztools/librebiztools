@@ -55,7 +55,7 @@ export async function login(
   );
 
   if (!validPassword) {
-    throw new AuthError();
+    return Err(new AuthError());
   }
 
   const token = await createToken({ userId: user.id }, context);
