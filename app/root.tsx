@@ -15,11 +15,9 @@ import { useEffect, useState } from 'react';
 import { FaBell, FaMoon, FaSignOutAlt, FaSun, FaUser } from 'react-icons/fa';
 import { FaPeopleGroup } from 'react-icons/fa6';
 import type { Route } from './+types/root';
-import { getUserForRequest } from './api.server/auth';
-import { ApiError } from './api.server/errors';
-import { getPreferences } from './api.server/preferences';
-import { commitSession, getSession } from './api.server/session';
-import type { User } from './api/user';
+import { getContext } from './.server/context';
+import { getUserById } from './.server/services/user';
+import { commitSession } from './.server/session';
 import stylesheet from './app.css?url';
 import { EmailConfirmationAlert } from './components/email-confirmation-alert';
 
@@ -28,48 +26,37 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export async function loader({ request }: Route.LoaderArgs) {
-  try {
-    const user = await getUserForRequest(request);
-    const session = await getSession(request.headers.get('Cookie'));
-    const preferences = await getPreferences(request.headers.get('Cookie'));
+  const context = await getContext(request);
+  const { session, preferences } = context;
 
-    return data(
-      {
-        error: session.get('error'),
-        message: session.get('message'),
-        theme: preferences.get('theme') || 'light',
-        dismissedEmailConfirmation:
-          session.get('dismissedEmailConfirmation') || false,
-        user: user
-          ? {
-              id: user.id,
-              name: user.name,
-              email: user.email,
-              emailConfirmed: user.emailConfirmed,
-            }
-          : null,
+  const userId = session.get('userId');
+  const user = await getUserById({ id: userId || -1 }, context);
+
+  return data(
+    {
+      error: session.get('error'),
+      message: session.get('message'),
+      theme: preferences.get('theme') || 'light',
+      dismissedEmailConfirmation:
+        session.get('dismissedEmailConfirmation') || false,
+      user: user.isSome()
+        ? {
+            id: user.value.id,
+            name: user.value.name,
+            email: user.value.email,
+            emailConfirmed: user.value.emailConfirmed,
+          }
+        : null,
+    },
+    {
+      headers: {
+        'Set-Cookie': await commitSession(session),
       },
-      {
-        headers: {
-          'Set-Cookie': await commitSession(session),
-        },
-      },
-    );
-  } catch (err) {
-    if (err instanceof ApiError) {
-      return data({ message: err.message }, { status: err.code });
-    }
-    throw err;
-  }
+    },
+  );
 }
 
-type RootLoaderData = {
-  user: User | null;
-  error: string | undefined;
-  message: string | undefined;
-  theme: 'light' | 'dark';
-  dismissedEmailConfirmation: boolean;
-};
+type RootLoaderData = typeof loader;
 
 const Toast = ({
   message,

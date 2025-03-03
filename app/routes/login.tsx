@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { Form, Link, data, redirect } from 'react-router';
-import { login } from '~/api.server/auth';
-import { ApiError } from '~/api.server/errors';
-import { commitSession, getSession } from '~/api.server/session';
+import { getContext } from '~/.server/context';
+import { login } from '~/.server/services/auth';
+import { commitSession } from '~/.server/session';
 import { ErrorAlert } from '~/components/error-alert';
 import type { Route } from './+types/login';
 
@@ -14,27 +14,25 @@ export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
   const email = formData.get('email')?.toString();
   const password = formData.get('password')?.toString();
-  const session = await getSession(request.headers.get('Cookie'));
+  const context = await getContext(request);
+  const { session } = context;
   const returnUrl = session.get('returnUrl');
 
-  try {
-    const result = await login({ email, password });
-    session.set('accessToken', result.token);
-    session.set('userId', result.userId);
+  const result = await login({ email, password }, context);
 
-    const url = returnUrl || '/workspaces';
-    return redirect(url, {
-      headers: {
-        'Set-Cookie': await commitSession(session),
-      },
-    });
-  } catch (err) {
-    if (err instanceof ApiError) {
-      return data({ message: err.message }, { status: err.code });
-    }
-
-    throw err;
+  if (result.isErr()) {
+    return data({ message: result.error.message });
   }
+
+  session.set('accessToken', result.value.token);
+  session.set('userId', result.value.userId);
+
+  const url = returnUrl || '/workspaces';
+  return redirect(url, {
+    headers: {
+      'Set-Cookie': await commitSession(session),
+    },
+  });
 }
 
 export default function Login({ actionData }: Route.ComponentProps) {

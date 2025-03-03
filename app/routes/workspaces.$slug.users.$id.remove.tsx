@@ -1,55 +1,52 @@
 import { FaCheck, FaUndo } from 'react-icons/fa';
 import { Form, data, redirect } from 'react-router';
-import { getUserById, removeUser } from '~/api.server/auth';
-import { ApiError } from '~/api.server/errors';
-import { commitSession, getSession } from '~/api.server/session';
-import { loginRedirect } from '~/api.server/utils';
+import { getContext } from '~/.server/context';
+import { errorRedirect, loginRedirect } from '~/.server/helpers';
+import { getUserById } from '~/.server/services/user';
+import { removeUser } from '~/.server/services/workspace';
 import { ErrorAlert } from '~/components/error-alert';
 import type { Route } from './+types/workspaces.$slug.users.$id.remove';
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const session = await getSession(request.headers.get('Cookie'));
-  const userId = session.get('userId');
+  const context = await getContext(request);
+  const { session } = context;
 
+  const userId = session.get('userId');
   if (!userId) {
     return loginRedirect(session, request.url);
   }
 
   const removeUserId = Number.parseInt(params.id || '', 10);
-  const removeUser = await getUserById(removeUserId);
-  if (!removeUser) {
-    session.flash('error', `User with id ${removeUserId} not found`);
-    return redirect('.', {
-      headers: {
-        'Set-Cookie': await commitSession(session),
-      },
-    });
+  const removeUser = await getUserById({ id: removeUserId }, context);
+  if (removeUser.isNone()) {
+    return errorRedirect(session, 'User not found', '..');
   }
 
-  return data({ removeUser });
+  return data({
+    removeUser: removeUser.value,
+  });
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
-  const session = await getSession(request.headers.get('Cookie'));
-  const userId = session.get('userId');
+  const context = await getContext(request);
+  const { session } = context;
 
+  const userId = session.get('userId');
   if (!userId) {
     return loginRedirect(session, request.url);
   }
 
   const removeUserId = Number.parseInt(params.id || '', 10);
 
-  try {
-    await removeUser({ userId, slug: params.slug, removeUserId });
-
-    return redirect('..');
-  } catch (err) {
-    if (err instanceof ApiError) {
-      return data({ error: err.message });
-    }
-
-    throw err;
+  const result = await removeUser(
+    { userId, slug: params.slug, removeUserId },
+    context,
+  );
+  if (result.isErr()) {
+    return data({ error: result.error.message });
   }
+
+  return redirect('..');
 }
 
 export default function workspaceRemoveUser({
@@ -62,10 +59,10 @@ export default function workspaceRemoveUser({
   return (
     <dialog className="modal" open={true}>
       <div className="modal-box">
-        <h3 className="font-bold text-lg">Remove User</h3>
+        <h3 className="font-bold text-lg"> Remove User </h3>
         <Form id="form-submit" method="post">
           <p>
-            {removeUser.name} will be removed from your workspace. All tickets
+            {removeUser.name} will be removed from your workspace.All tickets
             assigned to them will be unassigned.
           </p>
           {errorMessage && <ErrorAlert message={errorMessage} />}
@@ -87,7 +84,7 @@ export default function workspaceRemoveUser({
         method="get"
         className="modal-backdrop backdrop-brightness-50"
       >
-        <button type="submit">Close</button>
+        <button type="submit"> Close </button>
       </Form>
     </dialog>
   );

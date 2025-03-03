@@ -1,22 +1,22 @@
 import { FaPlus, FaUndo } from 'react-icons/fa';
 import { Form, data, redirect } from 'react-router';
-import { addUser, getRoles } from '~/api.server/auth';
-import { ApiError } from '~/api.server/errors';
-import { getSession } from '~/api.server/session';
-import { loginRedirect } from '~/api.server/utils';
+import { getContext } from '~/.server/context';
+import { loginRedirect } from '~/.server/helpers';
+import { addUser, getRoles } from '~/.server/services/workspace';
 import { ErrorAlert } from '~/components/error-alert';
 import config from '~/config';
 import type { Route } from './+types/workspaces.$slug.users.add';
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const session = await getSession(request.headers.get('Cookie'));
-  const userId = session.get('userId');
+  const context = await getContext(request);
+  const { session } = context;
 
+  const userId = session.get('userId');
   if (!userId) {
     return loginRedirect(session, request.url);
   }
 
-  const roles = await getRoles({ userId, slug: params.slug });
+  const roles = await getRoles({ userId, slug: params.slug }, context);
 
   return data({
     roles,
@@ -24,29 +24,28 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
-  const session = await getSession(request.headers.get('Cookie'));
-  const userId = session.get('userId');
+  const context = await getContext(request);
+  const { session } = context;
 
+  const userId = session.get('userId');
   if (!userId) {
     return loginRedirect(session, request.url);
   }
 
-  try {
-    const formData = await request.formData();
-    const name = formData.get('name')?.toString();
-    const email = formData.get('email')?.toString();
-    const roleId = Number.parseInt(formData.get('role')?.toString() || '', 10);
+  const formData = await request.formData();
+  const name = formData.get('name')?.toString();
+  const email = formData.get('email')?.toString();
+  const roleId = Number.parseInt(formData.get('role')?.toString() || '', 10);
 
-    await addUser({ userId, slug: params.slug, name, email, roleId });
-
-    return redirect('..');
-  } catch (err) {
-    if (err instanceof ApiError) {
-      return data({ error: err.message });
-    }
-
-    throw err;
+  const result = await addUser(
+    { userId, slug: params.slug, name, email, roleId },
+    context,
+  );
+  if (result.isErr()) {
+    return data({ error: result.error.message });
   }
+
+  return redirect('..');
 }
 
 export default function workspaceAddUser({
@@ -59,7 +58,7 @@ export default function workspaceAddUser({
   return (
     <dialog className="modal" open={true}>
       <div className="modal-box">
-        <h3 className="font-bold text-lg">Add User</h3>
+        <h3 className="font-bold text-lg"> Add User </h3>
         <Form id="form-submit" method="post">
           <input type="hidden" name="action" value="add-user" />
           <fieldset className="fieldset">
@@ -116,7 +115,7 @@ export default function workspaceAddUser({
         method="get"
         className="modal-backdrop backdrop-brightness-50"
       >
-        <button type="submit">Close</button>
+        <button type="submit"> Close </button>
       </Form>
     </dialog>
   );

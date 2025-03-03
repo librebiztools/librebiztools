@@ -1,8 +1,9 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Form, Link, data, redirect } from 'react-router';
-import { getUserByEmail, signup } from '~/api.server/auth';
-import { ApiError } from '~/api.server/errors';
-import { commitSession, getSession } from '~/api.server/session';
+import { getContext } from '~/.server/context';
+import { signup } from '~/.server/services/auth';
+import { getUserByEmail } from '~/.server/services/user';
+import { commitSession } from '~/.server/session';
 import { ErrorAlert } from '~/components/error-alert';
 import config from '~/config';
 import { slugify } from '~/utils/slugify';
@@ -20,49 +21,62 @@ export async function action({ request }: Route.ActionArgs) {
   const password = formData.get('password')?.toString();
   const confirmPassword = formData.get('confirm-password')?.toString();
 
-  const session = await getSession(request.headers.get('Cookie'));
+  const context = await getContext(request);
+
+  const { session } = context;
+
   const returnUrl = session.get('returnUrl');
 
-  try {
-    const result = await signup({
+  const result = await signup(
+    {
       name,
       workspaceName,
       email,
       password,
       confirmPassword,
-    });
+    },
+    context,
+  );
 
-    session.set('accessToken', result.token);
-    session.set('userId', result.userId);
-
-    const url = returnUrl || '/workspaces';
-    return redirect(url, {
-      headers: {
-        'Set-Cookie': await commitSession(session),
-      },
-    });
-  } catch (err) {
-    if (err instanceof ApiError) {
-      return data({ message: err.message }, { status: err.code });
-    }
-
-    throw err;
+  if (result.isErr()) {
+    return data({ message: result.error.message });
   }
+
+  session.set('accessToken', result.value.token);
+  session.set('userId', result.value.userId);
+
+  const url = returnUrl || '/workspaces';
+  return redirect(url, {
+    headers: {
+      'Set-Cookie': await commitSession(session),
+    },
+  });
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
 
   const email = url.searchParams.get('email');
+  const context = await getContext(request);
+  const { session } = context;
+
   if (email) {
-    const user = await getUserByEmail(email);
-    if (user) {
-      return data({
-        invited: true,
-        email: user.email,
-        name: user.name,
+    const user = await getUserByEmail({ email }, context);
+    if (user.isNone()) {
+      session.flash('error', 'Unable to find user with that email');
+
+      return redirect('.', {
+        headers: {
+          'Set-Cookie': await commitSession(session),
+        },
       });
     }
+
+    return data({
+      invited: true,
+      email: user.value.email,
+      name: user.value.name,
+    });
   }
 }
 
@@ -91,7 +105,7 @@ export default function Signup({
     <div className="flex min-h-screen flex-col items-center bg-base-200 pt-4">
       <div className="card w-full max-w-sm flex-shrink-0 bg-base-100 shadow-2xl">
         <div className="card-body">
-          <h2 className="card-title">Signup</h2>
+          <h2 className="card-title"> Signup </h2>
           <Form method="post">
             <fieldset className="fieldset">
               <label htmlFor="name" className="fieldset-label">
@@ -170,7 +184,7 @@ export default function Signup({
                 Signup
               </button>
               <div className="text-center">
-                Already have an account?{' '}
+                Already have an account ?{' '}
                 <Link to="/login" className="link link-hover text-xs">
                   Login
                 </Link>

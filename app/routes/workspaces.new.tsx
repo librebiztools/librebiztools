@@ -1,18 +1,18 @@
 import { useCallback, useMemo, useState } from 'react';
 import { FaCheck } from 'react-icons/fa';
 import { Form, data, href, redirect } from 'react-router';
-import { createWorkspace } from '~/api.server/auth';
-import { db } from '~/api.server/db';
-import { ApiError } from '~/api.server/errors';
-import { getSession } from '~/api.server/session';
-import { loginRedirect } from '~/api.server/utils';
+import { getContext } from '~/.server/context';
+import { loginRedirect } from '~/.server/helpers';
+import { createWorkspace } from '~/.server/services/workspace';
 import { ErrorAlert } from '~/components/error-alert';
 import config from '~/config';
 import { slugify } from '~/utils/slugify';
 import type { Route } from './+types/workspaces.new';
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const session = await getSession(request.headers.get('Cookie'));
+  const context = await getContext(request);
+  const { session } = context;
+
   const userId = session.get('userId');
   if (!userId) {
     return loginRedirect(session);
@@ -20,7 +20,9 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export async function action({ request }: Route.ActionArgs) {
-  const session = await getSession(request.headers.get('Cookie'));
+  const context = await getContext(request);
+  const { session } = context;
+
   const userId = session.get('userId');
   if (!userId) {
     return loginRedirect(session, request.url);
@@ -29,23 +31,19 @@ export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
   const workspaceName = formData.get('workspace-name')?.toString();
 
-  try {
-    return db.transaction(async (tx) => {
-      const { slug } = await createWorkspace({
-        userId,
-        name: workspaceName,
-        tx,
-      });
+  const result = await createWorkspace(
+    {
+      userId,
+      name: workspaceName,
+    },
+    context,
+  );
 
-      return redirect(href('/workspaces/:slug', { slug }));
-    });
-  } catch (err) {
-    if (err instanceof ApiError) {
-      return data({ message: err.message }, { status: err.code });
-    }
-
-    throw err;
+  if (result.isErr()) {
+    return data(result.error);
   }
+
+  return redirect(href('/workspaces/:slug', result.value));
 }
 
 export default function workspacesNew({ actionData }: Route.ComponentProps) {

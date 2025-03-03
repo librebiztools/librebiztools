@@ -1,23 +1,26 @@
 import { FaCheck, FaPlus, FaTrash } from 'react-icons/fa';
 import { Form, Link, data, href, redirect } from 'react-router';
+import type { Result } from 'ts-results-es';
+import { getContext } from '~/.server/context';
+import type { ApiError } from '~/.server/errors';
+import { errorRedirect, loginRedirect } from '~/.server/helpers';
 import {
   acceptWorkspaceInvite,
-  declinetWorkspaceInvite,
-} from '~/api.server/auth';
-import { ApiError } from '~/api.server/errors';
-import { commitSession, getSession } from '~/api.server/session';
-import { loginRedirect } from '~/api.server/utils';
-import { getWorkspacesForUser } from '~/api.server/workspace';
+  declineWorkspaceInvite,
+  getWorkspacesForUser,
+} from '~/.server/services/workspace';
 import type { Route } from './+types/workspaces._index';
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const session = await getSession(request.headers.get('Cookie'));
+  const context = await getContext(request);
+  const { session } = context;
+
   const userId = session.get('userId');
   if (!userId) {
     return loginRedirect(session);
   }
 
-  const workspaces = await getWorkspacesForUser({ userId });
+  const workspaces = await getWorkspacesForUser({ userId }, context);
   if (!workspaces.length) {
     return redirect('/workspaces/new');
   }
@@ -30,7 +33,9 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export async function action({ request }: Route.ActionArgs) {
-  const session = await getSession(request.headers.get('Cookie'));
+  const context = await getContext(request);
+  const { session } = context;
+
   const userId = session.get('userId');
   if (!userId) {
     return loginRedirect(session, request.url);
@@ -43,29 +48,20 @@ export async function action({ request }: Route.ActionArgs) {
     10,
   );
 
-  try {
-    switch (action) {
-      case 'decline':
-        await declinetWorkspaceInvite({ userId, workspaceId });
-        break;
-      case 'accept':
-        await acceptWorkspaceInvite({ userId, workspaceId });
-        break;
-    }
-  } catch (err) {
-    if (err instanceof ApiError) {
-      session.flash('error', err.message);
-      return data(
-        {},
-        {
-          headers: {
-            'Set-Cookie': await commitSession(session),
-          },
-        },
-      );
-    }
+  let result: Result<void, ApiError>;
+  switch (action) {
+    case 'decline':
+      result = await declineWorkspaceInvite({ userId, workspaceId }, context);
+      break;
+    case 'accept':
+      result = await acceptWorkspaceInvite({ userId, workspaceId }, context);
+      break;
+    default:
+      return errorRedirect(session, `Unknown action: ${action}`, '.');
+  }
 
-    throw err;
+  if (result.isErr()) {
+    return errorRedirect(session, result.error.message, '.');
   }
 }
 
