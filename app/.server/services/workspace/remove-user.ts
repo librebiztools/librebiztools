@@ -6,6 +6,7 @@ import { db } from '~/.server/db';
 import { userWorkspaceRoles, users } from '~/.server/db/schema';
 import { type ApiError, InputError } from '~/.server/errors';
 import { getEmailTemplateId, sendEmail } from '../email';
+import { getUserCount } from './get-user-count';
 import { getWorkspaceBySlug } from './get-workspace-by-slug';
 
 // TODO: permissions
@@ -17,7 +18,7 @@ type Request = {
 };
 
 export async function removeUser(
-  { slug, removeUserId }: Request,
+  { userId, slug, removeUserId }: Request,
   context: Context,
 ): Promise<Result<void, ApiError>> {
   if (Number.isNaN(removeUserId)) {
@@ -30,6 +31,12 @@ export async function removeUser(
 
   if (workspace.isNone()) {
     return Err(new InputError(`Workspace ${slug} does not exist`));
+  }
+
+  const userCount = await getUserCount({ userId, slug }, context);
+
+  if (userCount <= 1) {
+    return Err(new InputError('Can not remove last member of workspace'));
   }
 
   const rows = await (tx || db)
