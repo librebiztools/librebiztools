@@ -21,11 +21,9 @@ test('Redirects to workspace page after successful signup', async ({
 
   await page.waitForURL(`**/workspaces/${slug}`);
 
-  const linkTitle = await page
-    .getByRole('link', { name: workspaceName })
-    .textContent();
-
-  expect(linkTitle).toBe(workspaceName);
+  expect(
+    await page.getByRole('link', { name: workspaceName }).textContent(),
+  ).toBe(workspaceName);
 });
 
 test('Slugifies workspace name', async ({ page }) => {
