@@ -53,8 +53,6 @@ jobs:
         done
     - name: Copy default environment file
       run: cp .env.example .env
-    - name: Apply db migrations
-      run: pnpm db:migrate
     - name: Run Playwright tests
       run: pnpm e2e
     - uses: actions/upload-artifact@v4
