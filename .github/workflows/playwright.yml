@@ -9,6 +9,21 @@ jobs:
     timeout-minutes: 60
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:17.2-bookworm
+        env:
+          POSTGRES_USER: tickflo
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: tickflo
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U tickflo -d tickflo"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=5
+
     strategy:
       matrix:
         node-version: [22.x]
@@ -30,6 +45,12 @@ jobs:
       run: pnpm build
     - name: Install Playwright Browsers
       run: pnpm exec playwright install --with-deps
+    - name: Wait for PostgreSQL to be ready
+      run: |
+        until pg_isready -h localhost -p 5432 -U tickflo; do
+          echo "Waiting for PostgreSQL to be ready..."
+          sleep 2
+        done
     - name: Run Playwright tests
       run: pnpm e2e
     - uses: actions/upload-artifact@v4
