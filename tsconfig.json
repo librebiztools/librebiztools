@@ -8,7 +8,8 @@
     "server.js",
     "tailwind.config.ts",
     "vite.config.ts",
-    "test/setup.ts"
+    "test/setup.ts",
+    "e2e/**/*.ts"
   ],
   "compilerOptions": {
     "checkJs": true,

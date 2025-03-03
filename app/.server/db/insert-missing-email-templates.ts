@@ -17,5 +17,9 @@ export async function insertMissingEmailTemplates() {
     })),
   );
 
+  if (!templates.length) {
+    return;
+  }
+
   await db.insert(emailTemplates).values(templates).onConflictDoNothing();
 }

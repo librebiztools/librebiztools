@@ -12,7 +12,9 @@
     "db:migrate": "drizzle-kit generate && drizzle-kit migrate",
     "db:reset": "curl http://localhost:3000/api/reset-db",
     "db:seed": "curl http://localhost:3000/api/reset-db",
-    "test": "vitest"
+    "test": "vitest --dir app",
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.2.16",
@@ -37,6 +39,7 @@
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "@faker-js/faker": "^9.5.0",
+    "@playwright/test": "^1.50.1",
     "@react-router/dev": "^7.2.0",
     "@tailwindcss/vite": "^4.0.9",
     "@types/express": "^5.0.0",
@@ -46,6 +49,7 @@
     "@types/pg": "^8.11.11",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.1",
+    "@vitest/browser": "^3.0.7",
     "cross-env": "^7.0.3",
     "daisyui": "^5.0.0",
     "drizzle-kit": "^0.30.5",
