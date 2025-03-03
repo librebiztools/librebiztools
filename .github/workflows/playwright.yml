@@ -8,6 +8,9 @@ jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.50.1-noble
+      options: --user 1001
 
     services:
       postgres:
@@ -43,8 +46,6 @@ jobs:
       run: pnpm install --frozen-lockfile
     - name: Build app
       run: pnpm build
-    - name: Install Playwright Browsers
-      run: pnpm exec playwright install --with-deps chromium
     - name: Wait for PostgreSQL to be ready
       run: |
         until pg_isready -h localhost -p 5432 -U tickflo; do
