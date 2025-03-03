@@ -1,6 +1,7 @@
 import { and, eq } from 'drizzle-orm';
 import type { Context } from '~/.server/context';
-import type { roles as rolesType } from '../../db/schema';
+import { db } from '~/.server/db';
+import { roles, type roles as rolesType, workspaces } from '../../db/schema';
 
 type Role = typeof rolesType.$inferSelect;
 
@@ -11,11 +12,7 @@ export async function getRoles(
   }: { userId: number; slug: string },
   context: Context,
 ): Promise<Role[]> {
-  const {
-    db,
-    tx,
-    schema: { roles, workspaces },
-  } = context;
+  const { tx } = context;
 
   return (tx || db)
     .select({

@@ -2,15 +2,14 @@ import { FaCheck, FaUndo } from 'react-icons/fa';
 import { Form, data, redirect } from 'react-router';
 import { getContext } from '~/.server/context';
 import { errorRedirect, loginRedirect } from '~/.server/helpers';
+import { getUserById } from '~/.server/services/user';
+import { removeUser } from '~/.server/services/workspace';
 import { ErrorAlert } from '~/components/error-alert';
 import type { Route } from './+types/workspaces.$slug.users.$id.remove';
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const context = await getContext(request);
-  const {
-    session,
-    services: { UserService },
-  } = context;
+  const { session } = context;
 
   const userId = session.get('userId');
   if (!userId) {
@@ -18,10 +17,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   }
 
   const removeUserId = Number.parseInt(params.id || '', 10);
-  const removeUser = await UserService.getUserById(
-    { id: removeUserId },
-    context,
-  );
+  const removeUser = await getUserById({ id: removeUserId }, context);
   if (removeUser.isNone()) {
     return errorRedirect(session, 'User not found', '..');
   }
@@ -33,10 +29,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
 export async function action({ request, params }: Route.ActionArgs) {
   const context = await getContext(request);
-  const {
-    session,
-    services: { WorkspaceService },
-  } = context;
+  const { session } = context;
 
   const userId = session.get('userId');
   if (!userId) {
@@ -45,7 +38,7 @@ export async function action({ request, params }: Route.ActionArgs) {
 
   const removeUserId = Number.parseInt(params.id || '', 10);
 
-  const result = await WorkspaceService.removeUser(
+  const result = await removeUser(
     { userId, slug: params.slug, removeUserId },
     context,
   );

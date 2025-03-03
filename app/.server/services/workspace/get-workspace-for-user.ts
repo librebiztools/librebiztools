@@ -1,7 +1,8 @@
 import { and, eq } from 'drizzle-orm';
 import { None, type Option, Some } from 'ts-results-es';
 import type { Context } from '~/.server/context';
-import type { workspaces } from '~/.server/db/schema';
+import { db } from '~/.server/db';
+import { userWorkspaceRoles, workspaces } from '~/.server/db/schema';
 
 type Workspace = typeof workspaces.$inferSelect;
 
@@ -14,11 +15,7 @@ export async function getWorkspaceForUser(
   { userId, slug }: Request,
   context: Context,
 ): Promise<Option<Workspace>> {
-  const {
-    db,
-    tx,
-    schema: { userWorkspaceRoles, workspaces },
-  } = context;
+  const { tx } = context;
 
   const rows = await (tx || db)
     .select()

@@ -2,7 +2,10 @@ import { and, eq } from 'drizzle-orm';
 import { Err, Ok, type Result } from 'ts-results-es';
 import type { Context } from '~/.server/context';
 import { emailTemplates } from '~/.server/data';
+import { db } from '~/.server/db';
+import { userWorkspaceRoles, users, workspaces } from '~/.server/db/schema';
 import { type ApiError, InputError } from '~/.server/errors';
+import { getEmailTemplateId, sendEmail } from '../email';
 
 type Request = {
   userId: number;
@@ -13,13 +16,7 @@ export async function sendInviteEmail(
   { userId, slug }: Request,
   context: Context,
 ): Promise<Result<void, ApiError>> {
-  const {
-    db,
-    tx,
-    schema: { userWorkspaceRoles, workspaces, users },
-    services: { EmailService },
-    config,
-  } = context;
+  const { tx, config } = context;
 
   const roles = await (tx || db)
     .select({
@@ -51,7 +48,7 @@ export async function sendInviteEmail(
 
   const signedUp = !!role.passwordHash;
   if (signedUp) {
-    const templateId = await EmailService.getEmailTemplateId(
+    const templateId = await getEmailTemplateId(
       {
         typeId: emailTemplates.existingWorkspaceMemberInvitation.typeId,
         slug,
@@ -63,7 +60,7 @@ export async function sendInviteEmail(
       return Err(new InputError('Email template not found'));
     }
 
-    await EmailService.sendEmail(
+    await sendEmail(
       {
         to: role.email,
         templateId: templateId.value,
@@ -75,7 +72,7 @@ export async function sendInviteEmail(
       context,
     );
   } else {
-    const templateId = await EmailService.getEmailTemplateId(
+    const templateId = await getEmailTemplateId(
       {
         typeId: emailTemplates.existingWorkspaceMemberInvitation.typeId,
         slug,
@@ -87,7 +84,7 @@ export async function sendInviteEmail(
       return Err(new InputError('Email template not found'));
     }
 
-    await EmailService.sendEmail(
+    await sendEmail(
       {
         to: role.email,
         templateId: templateId.value,

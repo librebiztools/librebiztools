@@ -2,7 +2,11 @@ import { and, eq } from 'drizzle-orm';
 import { Err, Ok, type Result } from 'ts-results-es';
 import type { Context } from '~/.server/context';
 import { emailTemplates } from '~/.server/data';
+import { db } from '~/.server/db';
+import { userWorkspaceRoles, users } from '~/.server/db/schema';
 import { type ApiError, InputError } from '~/.server/errors';
+import { getEmailTemplateId, sendEmail } from '../email';
+import { getWorkspaceBySlug } from './get-workspace-by-slug';
 
 // TODO: permissions
 
@@ -20,17 +24,9 @@ export async function removeUser(
     return Err(new InputError('Invalid user id'));
   }
 
-  const {
-    db,
-    tx,
-    schema: { userWorkspaceRoles, users },
-    services: { EmailService, WorkspaceService },
-  } = context;
+  const { tx } = context;
 
-  const workspace = await WorkspaceService.getWorkspaceBySlug(
-    { slug },
-    context,
-  );
+  const workspace = await getWorkspaceBySlug({ slug }, context);
 
   if (workspace.isNone()) {
     return Err(new InputError(`Workspace ${slug} does not exist`));
@@ -61,7 +57,7 @@ export async function removeUser(
         ),
       );
 
-    const templateId = await EmailService.getEmailTemplateId(
+    const templateId = await getEmailTemplateId(
       {
         slug,
         typeId: emailTemplates.workspaceMemberRemoval.typeId,
@@ -73,7 +69,7 @@ export async function removeUser(
       return Err(new InputError('Email template not found'));
     }
 
-    await EmailService.sendEmail(
+    await sendEmail(
       {
         to: removeUser.email,
         templateId: templateId.value,

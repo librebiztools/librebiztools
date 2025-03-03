@@ -2,26 +2,21 @@ import { FaPlus, FaUndo } from 'react-icons/fa';
 import { Form, data, redirect } from 'react-router';
 import { getContext } from '~/.server/context';
 import { loginRedirect } from '~/.server/helpers';
+import { addUser, getRoles } from '~/.server/services/workspace';
 import { ErrorAlert } from '~/components/error-alert';
 import config from '~/config';
 import type { Route } from './+types/workspaces.$slug.users.add';
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const context = await getContext(request);
-  const {
-    session,
-    services: { WorkspaceService },
-  } = context;
+  const { session } = context;
 
   const userId = session.get('userId');
   if (!userId) {
     return loginRedirect(session, request.url);
   }
 
-  const roles = await WorkspaceService.getRoles(
-    { userId, slug: params.slug },
-    context,
-  );
+  const roles = await getRoles({ userId, slug: params.slug }, context);
 
   return data({
     roles,
@@ -30,10 +25,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
 export async function action({ request, params }: Route.ActionArgs) {
   const context = await getContext(request);
-  const {
-    session,
-    services: { WorkspaceService },
-  } = context;
+  const { session } = context;
 
   const userId = session.get('userId');
   if (!userId) {
@@ -45,7 +37,7 @@ export async function action({ request, params }: Route.ActionArgs) {
   const email = formData.get('email')?.toString();
   const roleId = Number.parseInt(formData.get('role')?.toString() || '', 10);
 
-  const result = await WorkspaceService.addUser(
+  const result = await addUser(
     { userId, slug: params.slug, name, email, roleId },
     context,
   );

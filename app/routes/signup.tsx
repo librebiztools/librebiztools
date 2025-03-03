@@ -1,6 +1,8 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Form, Link, data, redirect } from 'react-router';
 import { getContext } from '~/.server/context';
+import { signup } from '~/.server/services/auth';
+import { getUserByEmail } from '~/.server/services/user';
 import { commitSession } from '~/.server/session';
 import { ErrorAlert } from '~/components/error-alert';
 import config from '~/config';
@@ -21,14 +23,11 @@ export async function action({ request }: Route.ActionArgs) {
 
   const context = await getContext(request);
 
-  const {
-    session,
-    services: { AuthService },
-  } = context;
+  const { session } = context;
 
   const returnUrl = session.get('returnUrl');
 
-  const result = await AuthService.signup(
+  const result = await signup(
     {
       name,
       workspaceName,
@@ -59,13 +58,10 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   const email = url.searchParams.get('email');
   const context = await getContext(request);
-  const {
-    session,
-    services: { UserService },
-  } = context;
+  const { session } = context;
 
   if (email) {
-    const user = await UserService.getUserByEmail({ email }, context);
+    const user = await getUserByEmail({ email }, context);
     if (user.isNone()) {
       session.flash('error', 'Unable to find user with that email');
 

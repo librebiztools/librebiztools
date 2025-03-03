@@ -1,5 +1,6 @@
 import type { Context } from '~/.server/context';
 import { emailTemplates } from '~/.server/data';
+import { sendEmail } from '../email';
 
 type Request = {
   to: string;
@@ -7,12 +8,9 @@ type Request = {
 };
 
 export async function sendSignupEmail({ to, code }: Request, context: Context) {
-  const {
-    services: { EmailService },
-    config,
-  } = context;
+  const { config } = context;
 
-  await EmailService.sendEmail(
+  await sendEmail(
     {
       to,
       templateId: emailTemplates.signup.typeId,

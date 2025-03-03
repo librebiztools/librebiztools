@@ -1,5 +1,12 @@
 import { and, eq } from 'drizzle-orm';
 import type { Context } from '~/.server/context';
+import { db } from '~/.server/db';
+import {
+  roles,
+  userWorkspaceRoles,
+  users,
+  workspaces,
+} from '~/.server/db/schema';
 
 type User = {
   id: number;
@@ -16,11 +23,7 @@ export async function getUsers(
   }: { userId: number; slug: string },
   context: Context,
 ): Promise<User[]> {
-  const {
-    db,
-    tx,
-    schema: { users, userWorkspaceRoles, workspaces, roles },
-  } = context;
+  const { tx } = context;
 
   return (tx || db)
     .select({

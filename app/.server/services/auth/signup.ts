@@ -2,7 +2,10 @@ import { randomBytes } from 'node:crypto';
 import { eq } from 'drizzle-orm';
 import { Err, Ok, type Result } from 'ts-results-es';
 import type { Context } from '~/.server/context';
+import { db } from '~/.server/db';
+import { userWorkspaceRoles, users, workspaces } from '~/.server/db/schema';
 import { ApiError, InputError } from '../../errors';
+import { createWorkspace } from '../workspace';
 import { createToken } from './create-token';
 import { createHash } from './hash';
 import { sendSignupEmail } from './send-signup-email';
@@ -28,13 +31,7 @@ export async function signup(
   const email = request.email?.toString().toLowerCase().trim();
   const workspaceName = request.workspaceName?.toString().trim();
 
-  const {
-    config,
-    db,
-    tx,
-    schema: { users, workspaces },
-    services: { WorkspaceService },
-  } = context;
+  const { config, tx } = context;
 
   if (
     !name ||
@@ -75,12 +72,15 @@ export async function signup(
   const invited = user && !user.passwordHash;
 
   if (invited) {
-    return signupInvitee({
-      userId: user.id,
-      email,
-      password: request.password,
-      name,
-    });
+    return signupInvitee(
+      {
+        userId: user.id,
+        email,
+        password: request.password,
+        name,
+      },
+      context,
+    );
   }
 
   if (user) {
@@ -132,7 +132,7 @@ export async function signup(
 
     const user = userRows[0];
 
-    await WorkspaceService.createWorkspace(
+    await createWorkspace(
       {
         userId: user.id,
         name: workspaceName,
@@ -166,11 +166,6 @@ async function signupInvitee(
   context: Context,
 ): Promise<Result<Response, ApiError>> {
   const hash = await createHash(`${email}${password}`);
-
-  const {
-    db,
-    schema: { users, userWorkspaceRoles },
-  } = context;
 
   return await db.transaction(async (tx) => {
     await tx

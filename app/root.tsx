@@ -16,8 +16,8 @@ import { FaBell, FaMoon, FaSignOutAlt, FaSun, FaUser } from 'react-icons/fa';
 import { FaPeopleGroup } from 'react-icons/fa6';
 import type { Route } from './+types/root';
 import { getContext } from './.server/context';
+import { getUserById } from './.server/services/user';
 import { commitSession } from './.server/session';
-import type { User } from './api/user';
 import stylesheet from './app.css?url';
 import { EmailConfirmationAlert } from './components/email-confirmation-alert';
 
@@ -27,14 +27,10 @@ export const links: Route.LinksFunction = () => [
 
 export async function loader({ request }: Route.LoaderArgs) {
   const context = await getContext(request);
-  const {
-    session,
-    preferences,
-    services: { UserService },
-  } = context;
+  const { session, preferences } = context;
 
   const userId = session.get('userId');
-  const user = await UserService.getUserById({ id: userId || -1 }, context);
+  const user = await getUserById({ id: userId || -1 }, context);
 
   return data(
     {
@@ -60,13 +56,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   );
 }
 
-type RootLoaderData = {
-  user: User | null;
-  error: string | undefined;
-  message: string | undefined;
-  theme: 'light' | 'dark';
-  dismissedEmailConfirmation: boolean;
-};
+type RootLoaderData = typeof loader;
 
 const Toast = ({
   message,

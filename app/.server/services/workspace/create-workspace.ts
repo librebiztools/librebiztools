@@ -1,6 +1,13 @@
 import { Ok, type Result } from 'ts-results-es';
 import type { Context } from '~/.server/context';
 import { workspaceEmailTemplates } from '~/.server/data';
+import { db } from '~/.server/db';
+import {
+  emailTemplates,
+  roles,
+  userWorkspaceRoles,
+  workspaces,
+} from '~/.server/db/schema';
 import { slugify } from '~/utils/slugify';
 import { type ApiError, InputError } from '../../errors';
 
@@ -17,12 +24,7 @@ export async function createWorkspace(
   { userId, name }: Request,
   context: Context,
 ): Promise<Result<Response, ApiError>> {
-  const {
-    tx,
-    db,
-    config,
-    schema: { workspaces, roles, userWorkspaceRoles, emailTemplates },
-  } = context;
+  const { tx, config } = context;
 
   if (
     !name ||

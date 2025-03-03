@@ -1,4 +1,6 @@
 import type { Context } from '~/.server/context';
+import { db } from '~/.server/db';
+import { emails } from '~/.server/db/schema';
 
 export async function sendEmail(
   {
@@ -12,11 +14,7 @@ export async function sendEmail(
   },
   context: Context,
 ) {
-  const {
-    db,
-    tx,
-    schema: { emails },
-  } = context;
+  const { tx } = context;
 
   await (tx || db).insert(emails).values({
     to,

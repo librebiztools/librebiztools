@@ -1,6 +1,8 @@
 import { eq } from 'drizzle-orm';
 import { Err, Ok, type Result } from 'ts-results-es';
 import type { Context } from '~/.server/context';
+import { db } from '~/.server/db';
+import { users } from '~/.server/db/schema';
 import { type ApiError, AuthError, InputError } from '../../errors';
 import { createToken } from './create-token';
 import { validateHash } from './hash';
@@ -28,11 +30,7 @@ export async function login(
     return Err(new InputError('Password is required'));
   }
 
-  const {
-    db,
-    tx,
-    schema: { users },
-  } = context;
+  const { tx } = context;
 
   const user = await (tx || db).query.users.findFirst({
     columns: {

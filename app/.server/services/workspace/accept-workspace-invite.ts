@@ -1,6 +1,8 @@
 import { and, eq } from 'drizzle-orm';
 import { Err, Ok, type Result } from 'ts-results-es';
 import type { Context } from '~/.server/context';
+import { db } from '~/.server/db';
+import { userWorkspaceRoles } from '~/.server/db/schema';
 import { type ApiError, InputError } from '~/.server/errors';
 
 type Request = {
@@ -8,7 +10,7 @@ type Request = {
   workspaceId: number;
 };
 
-export async function declineWorkspaceInvite(
+export async function acceptWorkspaceInvite(
   { userId, workspaceId }: Request,
   context: Context,
 ): Promise<Result<void, ApiError>> {
@@ -20,11 +22,7 @@ export async function declineWorkspaceInvite(
     return Err(new InputError(`Invalid workspaceId ${workspaceId}`));
   }
 
-  const {
-    db,
-    tx,
-    schema: { userWorkspaceRoles },
-  } = context;
+  const { tx } = context;
 
   const role = await (tx || db).query.userWorkspaceRoles.findFirst({
     columns: {
@@ -47,7 +45,8 @@ export async function declineWorkspaceInvite(
   }
 
   await db
-    .delete(userWorkspaceRoles)
+    .update(userWorkspaceRoles)
+    .set({ accepted: true })
     .where(
       and(
         eq(userWorkspaceRoles.userId, userId),

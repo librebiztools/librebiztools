@@ -1,7 +1,10 @@
 import { eq } from 'drizzle-orm';
 import { Err, Ok, type Result } from 'ts-results-es';
 import type { Context } from '~/.server/context';
+import { db } from '~/.server/db';
+import { users } from '~/.server/db/schema';
 import { InputError } from '~/.server/errors';
+import { getUserByEmail } from '../user';
 
 type Request = {
   email: string | null | undefined;
@@ -18,14 +21,9 @@ export async function confirmEmail(
     );
   }
 
-  const {
-    db,
-    tx,
-    schema: { users },
-    services: { UserService },
-  } = context;
+  const { tx } = context;
 
-  const user = await UserService.getUserByEmail({ email }, context);
+  const user = await getUserByEmail({ email }, context);
   if (user.isNone()) {
     return Err(new InputError('User not found'));
   }

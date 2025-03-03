@@ -3,22 +3,20 @@ import { FaShield } from 'react-icons/fa6';
 import { Link, NavLink, Outlet, data } from 'react-router';
 import { getContext } from '~/.server/context';
 import { errorRedirect, loginRedirect } from '~/.server/helpers';
+import { getWorkspaceForUser } from '~/.server/services/workspace';
 import { commitSession } from '~/.server/session';
 import type { Route } from './+types/workspaces.$slug';
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const context = await getContext(request);
-  const {
-    session,
-    services: { WorkspaceService },
-  } = context;
+  const { session } = context;
 
   const userId = session.get('userId');
   if (!userId) {
     return loginRedirect(session, request.url);
   }
 
-  const workspace = await WorkspaceService.getWorkspaceForUser(
+  const workspace = await getWorkspaceForUser(
     { userId, slug: params.slug },
     context,
   );

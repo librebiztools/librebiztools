@@ -2,6 +2,8 @@ import { and, eq } from 'drizzle-orm';
 import { None, type Option, Some } from 'ts-results-es';
 import type { Context } from '~/.server/context';
 import { SYSTEM_TEMPLATE_IDS as SYSTEM_EMAIL_TEMPLATE_IDS } from '~/.server/data';
+import { db } from '~/.server/db';
+import { emailTemplates, workspaces } from '~/.server/db/schema';
 
 type Request = {
   typeId: number;
@@ -16,11 +18,7 @@ export async function getEmailTemplateId(
     return Some(typeId);
   }
 
-  const {
-    db,
-    tx,
-    schema: { emailTemplates, workspaces },
-  } = context;
+  const { tx } = context;
 
   const templates = await (tx || db)
     .select({ id: emailTemplates.id })

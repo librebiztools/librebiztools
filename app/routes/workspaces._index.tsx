@@ -4,24 +4,23 @@ import type { Result } from 'ts-results-es';
 import { getContext } from '~/.server/context';
 import type { ApiError } from '~/.server/errors';
 import { errorRedirect, loginRedirect } from '~/.server/helpers';
+import {
+  acceptWorkspaceInvite,
+  declineWorkspaceInvite,
+  getWorkspacesForUser,
+} from '~/.server/services/workspace';
 import type { Route } from './+types/workspaces._index';
 
 export async function loader({ request }: Route.LoaderArgs) {
   const context = await getContext(request);
-  const {
-    session,
-    services: { WorkspaceService },
-  } = context;
+  const { session } = context;
 
   const userId = session.get('userId');
   if (!userId) {
     return loginRedirect(session);
   }
 
-  const workspaces = await WorkspaceService.getWorkspacesForUser(
-    { userId },
-    context,
-  );
+  const workspaces = await getWorkspacesForUser({ userId }, context);
   if (!workspaces.length) {
     return redirect('/workspaces/new');
   }
@@ -35,10 +34,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 export async function action({ request }: Route.ActionArgs) {
   const context = await getContext(request);
-  const {
-    session,
-    services: { WorkspaceService },
-  } = context;
+  const { session } = context;
 
   const userId = session.get('userId');
   if (!userId) {
@@ -55,16 +51,10 @@ export async function action({ request }: Route.ActionArgs) {
   let result: Result<void, ApiError>;
   switch (action) {
     case 'decline':
-      result = await WorkspaceService.declineWorkspaceInvite(
-        { userId, workspaceId },
-        context,
-      );
+      result = await declineWorkspaceInvite({ userId, workspaceId }, context);
       break;
     case 'accept':
-      result = await WorkspaceService.acceptWorkspaceInvite(
-        { userId, workspaceId },
-        context,
-      );
+      result = await acceptWorkspaceInvite({ userId, workspaceId }, context);
       break;
     default:
       return errorRedirect(session, `Unknown action: ${action}`, '.');

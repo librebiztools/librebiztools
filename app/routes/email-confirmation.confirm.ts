@@ -1,5 +1,6 @@
 import { redirect } from 'react-router';
 import { getContext } from '~/.server/context';
+import { confirmEmail } from '~/.server/services/auth';
 import { commitSession } from '~/.server/session';
 import type { Route } from './+types/email-confirmation.confirm';
 
@@ -9,12 +10,9 @@ export async function loader({ request }: Route.LoaderArgs) {
   const email = url.searchParams.get('email');
   const code = url.searchParams.get('code');
   const context = await getContext(request);
-  const {
-    session,
-    services: { AuthService },
-  } = context;
+  const { session } = context;
 
-  await AuthService.confirmEmail({ email, code }, context);
+  await confirmEmail({ email, code }, context);
   session.flash('message', 'Email address confirmed!');
 
   return redirect('/', {

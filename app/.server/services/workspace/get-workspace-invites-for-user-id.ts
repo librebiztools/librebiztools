@@ -1,5 +1,7 @@
 import { and, eq } from 'drizzle-orm';
 import type { Context } from '~/.server/context';
+import { db } from '~/.server/db';
+import { userWorkspaceRoles, users, workspaces } from '~/.server/db/schema';
 
 type Request = {
   userId: number;
@@ -16,11 +18,7 @@ export async function getWorkspaceInvitesForUserId(
   { userId }: Request,
   context: Context,
 ): Promise<Invite[]> {
-  const {
-    db,
-    tx,
-    schema: { userWorkspaceRoles, users, workspaces },
-  } = context;
+  const { tx } = context;
 
   return (tx || db)
     .select({

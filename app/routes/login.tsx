@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { Form, Link, data, redirect } from 'react-router';
 import { getContext } from '~/.server/context';
+import { login } from '~/.server/services/auth';
 import { commitSession } from '~/.server/session';
 import { ErrorAlert } from '~/components/error-alert';
 import type { Route } from './+types/login';
@@ -14,13 +15,10 @@ export async function action({ request }: Route.ActionArgs) {
   const email = formData.get('email')?.toString();
   const password = formData.get('password')?.toString();
   const context = await getContext(request);
-  const {
-    session,
-    services: { AuthService },
-  } = context;
+  const { session } = context;
   const returnUrl = session.get('returnUrl');
 
-  const result = await AuthService.login({ email, password }, context);
+  const result = await login({ email, password }, context);
 
   if (result.isErr()) {
     return data({ message: result.error.message });

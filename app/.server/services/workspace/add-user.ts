@@ -2,10 +2,12 @@ import { randomBytes } from 'node:crypto';
 import { and, eq } from 'drizzle-orm';
 import { Err, Ok, type Result } from 'ts-results-es';
 import type { Context } from '~/.server/context';
-import config from '../../config';
 import { db } from '../../db';
 import { roles, userWorkspaceRoles, users } from '../../db/schema';
 import { ApiError, InputError } from '../../errors';
+import { getUserByEmail } from '../user';
+import { getWorkspaceBySlug } from './get-workspace-by-slug';
+import { sendInviteEmail } from './send-invite-email';
 
 export async function addUser(
   {
@@ -24,6 +26,8 @@ export async function addUser(
 ): Promise<Result<void, InputError>> {
   const name = request.name?.toString().trim();
   const email = request.email?.toString().trim().toLowerCase();
+
+  const { config } = context;
 
   if (
     !name ||
@@ -45,14 +49,7 @@ export async function addUser(
     return Err(new InputError('Invalid Role'));
   }
 
-  const {
-    services: { WorkspaceService, UserService },
-  } = context;
-
-  const workspace = await WorkspaceService.getWorkspaceBySlug(
-    { slug },
-    context,
-  );
+  const workspace = await getWorkspaceBySlug({ slug }, context);
 
   if (workspace.isNone()) {
     return Err(new InputError(`Workspace ${slug} does not exist`));
@@ -81,7 +78,7 @@ export async function addUser(
     );
   }
 
-  const existing = await UserService.getUserByEmail({ email }, context);
+  const existing = await getUserByEmail({ email }, context);
   if (existing.isSome()) {
     return await db.transaction(async (tx) => {
       await tx.insert(userWorkspaceRoles).values({
@@ -91,7 +88,7 @@ export async function addUser(
         createdBy: userId,
       });
 
-      const result = await WorkspaceService.sendInviteEmail(
+      const result = await sendInviteEmail(
         { userId: existing.value.id, slug },
         { ...context, tx },
       );
@@ -129,7 +126,7 @@ export async function addUser(
       createdBy: userId,
     });
 
-    const result = await WorkspaceService.sendInviteEmail(
+    const result = await sendInviteEmail(
       { userId: user.id, slug },
       { ...context, tx },
     );
