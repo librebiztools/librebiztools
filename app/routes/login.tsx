@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { Form, Link, data, redirect } from 'react-router';
-import { getContext } from '~/.server/context';
 import { login } from '~/.server/services/auth';
 import { commitSession } from '~/.server/session';
+import { appContext } from '~/app-context';
 import { ErrorAlert } from '~/components/error-alert';
 import type { Route } from './+types/login';
 
@@ -10,15 +10,16 @@ export function meta() {
   return [{ title: 'Tickflo Login' }];
 }
 
-export async function action({ request }: Route.ActionArgs) {
+export async function action({ context, request }: Route.ActionArgs) {
   const formData = await request.formData();
   const email = formData.get('email')?.toString();
   const password = formData.get('password')?.toString();
-  const context = await getContext(request);
-  const { session } = context;
+
+  const ctx = context.get(appContext);
+  const { session } = ctx;
   const returnUrl = session.get('returnUrl');
 
-  const result = await login({ email, password }, context);
+  const result = await login({ email, password }, ctx);
 
   if (result.isErr()) {
     return data({ message: result.error.message });

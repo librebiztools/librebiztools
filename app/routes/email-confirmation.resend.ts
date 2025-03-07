@@ -1,21 +1,12 @@
 import { redirect } from 'react-router';
-import { getContext } from '~/.server/context';
-import { loginRedirect } from '~/.server/helpers';
 import { sendSignupEmail } from '~/.server/services/auth';
-import { getUserById } from '~/.server/services/user';
 import { commitSession } from '~/.server/session';
+import { appContext } from '~/app-context';
 import type { Route } from './+types/email-confirmation.resend';
 
-export async function action({ request }: Route.ActionArgs) {
-  const context = await getContext(request);
-  const { session } = context;
-
-  const userId = session.get('userId');
-  if (!userId) {
-    return loginRedirect(session);
-  }
-
-  const user = await getUserById({ id: userId }, context);
+export async function action({ context, request }: Route.ActionArgs) {
+  const ctx = context.get(appContext);
+  const { session, user } = ctx;
 
   if (user.isNone()) {
     session.flash('error', 'User not found');
@@ -25,7 +16,7 @@ export async function action({ request }: Route.ActionArgs) {
     } else {
       await sendSignupEmail(
         { to: user.value.email, code: user.value.emailConfirmationCode },
-        context,
+        ctx,
       );
 
       session.set('dismissedEmailConfirmation', true);

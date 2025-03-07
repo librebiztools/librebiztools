@@ -1,21 +1,12 @@
 import { redirect } from 'react-router';
-import { getContext } from '~/.server/context';
 import { AuthError } from '~/.server/errors';
-import { loginRedirect } from '~/.server/helpers';
-import { getUserById } from '~/.server/services/user';
 import { commitSession } from '~/.server/session';
+import { appContext } from '~/app-context';
 import type { Route } from './+types/email-confirmation.dismiss';
 
-export async function action({ request }: Route.ActionArgs) {
-  const context = await getContext(request);
-  const { session } = context;
-
-  const userId = session.get('userId');
-  if (!userId) {
-    return loginRedirect(session);
-  }
-
-  const user = await getUserById({ id: userId }, context);
+export async function action({ context, request }: Route.ActionArgs) {
+  const ctx = context.get(appContext);
+  const { session, user } = ctx;
 
   if (user.isNone()) {
     throw new AuthError('User not found');

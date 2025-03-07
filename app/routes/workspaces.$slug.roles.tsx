@@ -1,21 +1,23 @@
 import { FaPlus, FaSearch, FaTrash } from 'react-icons/fa';
 import { FaPencil, FaShield } from 'react-icons/fa6';
 import { data } from 'react-router';
-import { getContext } from '~/.server/context';
-import { loginRedirect } from '~/.server/helpers';
+import { AuthError } from '~/.server/errors';
 import { getRoles } from '~/.server/services/workspace';
+import { appContext } from '~/app-context';
 import type { Route } from './+types/workspaces.$slug.roles';
 
-export async function loader({ request, params }: Route.LoaderArgs) {
-  const context = await getContext(request);
-  const { session } = context;
+export async function loader({ context, params }: Route.LoaderArgs) {
+  const ctx = context.get(appContext);
+  const { user } = ctx;
 
-  const userId = session.get('userId');
-  if (!userId) {
-    return loginRedirect(session, request.url);
+  if (user.isNone()) {
+    throw new AuthError('User not found');
   }
 
-  const roles = await getRoles({ userId, slug: params.slug }, context);
+  const roles = await getRoles(
+    { userId: user.value.id, slug: params.slug },
+    ctx,
+  );
 
   return data({ roles });
 }

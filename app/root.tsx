@@ -16,8 +16,9 @@ import { FaBell, FaMoon, FaSignOutAlt, FaSun, FaUser } from 'react-icons/fa';
 import { FaPeopleGroup } from 'react-icons/fa6';
 import type { Route } from './+types/root';
 import { getContext } from './.server/context';
-import { getUserById } from './.server/services/user';
+import { loginRedirect } from './.server/helpers';
 import { commitSession } from './.server/session';
+import { appContext } from './app-context';
 import stylesheet from './app.css?url';
 import { EmailConfirmationAlert } from './components/email-confirmation-alert';
 
@@ -25,12 +26,34 @@ export const links: Route.LinksFunction = () => [
   { rel: 'stylesheet', href: stylesheet },
 ];
 
-export async function loader({ request }: Route.LoaderArgs) {
-  const context = await getContext(request);
-  const { session, preferences } = context;
+function isAuthRequired(url: URL): boolean {
+  return !['/login', '/signup'].includes(url.pathname);
+}
 
-  const userId = session.get('userId');
-  const user = await getUserById({ id: userId || -1 }, context);
+const auth: Route.unstable_ClientMiddlewareFunction = async (
+  { context, request },
+  next,
+) => {
+  const url = new URL(request.url);
+  const ctx = await getContext(request);
+  if (isAuthRequired(url) && !ctx.session.get('userId')) {
+    if (url.pathname === '/') {
+      throw await loginRedirect(ctx.session, request.url, '');
+    }
+
+    throw await loginRedirect(ctx.session, request.url);
+  }
+
+  context.set(appContext, ctx);
+
+  await next();
+};
+
+export const unstable_middleware = [auth];
+
+export async function loader({ context }: Route.LoaderArgs) {
+  const ctx = context.get(appContext);
+  const { session, preferences, user } = ctx;
 
   return data(
     {

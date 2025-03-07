@@ -1,26 +1,25 @@
 import { FaCheck, FaPlus, FaTrash } from 'react-icons/fa';
 import { Form, Link, data, href, redirect } from 'react-router';
 import type { Result } from 'ts-results-es';
-import { getContext } from '~/.server/context';
-import type { ApiError } from '~/.server/errors';
-import { errorRedirect, loginRedirect } from '~/.server/helpers';
+import { type ApiError, AuthError } from '~/.server/errors';
+import { errorRedirect } from '~/.server/helpers';
 import {
   acceptWorkspaceInvite,
   declineWorkspaceInvite,
   getWorkspacesForUser,
 } from '~/.server/services/workspace';
+import { appContext } from '~/app-context';
 import type { Route } from './+types/workspaces._index';
 
-export async function loader({ request }: Route.LoaderArgs) {
-  const context = await getContext(request);
-  const { session } = context;
+export async function loader({ context }: Route.LoaderArgs) {
+  const ctx = context.get(appContext);
+  const { user } = ctx;
 
-  const userId = session.get('userId');
-  if (!userId) {
-    return loginRedirect(session);
+  if (user.isNone()) {
+    throw new AuthError('User not found');
   }
 
-  const workspaces = await getWorkspacesForUser({ userId }, context);
+  const workspaces = await getWorkspacesForUser({ userId: user.value.id }, ctx);
   if (!workspaces.length) {
     return redirect('/workspaces/new');
   }
@@ -32,13 +31,12 @@ export async function loader({ request }: Route.LoaderArgs) {
   return data({ workspaces });
 }
 
-export async function action({ request }: Route.ActionArgs) {
-  const context = await getContext(request);
-  const { session } = context;
+export async function action({ context, request }: Route.ActionArgs) {
+  const ctx = context.get(appContext);
+  const { session, user } = ctx;
 
-  const userId = session.get('userId');
-  if (!userId) {
-    return loginRedirect(session, request.url);
+  if (user.isNone()) {
+    throw new AuthError('User not found');
   }
 
   const formData = await request.formData();
@@ -51,10 +49,16 @@ export async function action({ request }: Route.ActionArgs) {
   let result: Result<void, ApiError>;
   switch (action) {
     case 'decline':
-      result = await declineWorkspaceInvite({ userId, workspaceId }, context);
+      result = await declineWorkspaceInvite(
+        { userId: user.value.id, workspaceId },
+        ctx,
+      );
       break;
     case 'accept':
-      result = await acceptWorkspaceInvite({ userId, workspaceId }, context);
+      result = await acceptWorkspaceInvite(
+        { userId: user.value.id, workspaceId },
+        ctx,
+      );
       break;
     default:
       return errorRedirect(session, `Unknown action: ${action}`, '.');

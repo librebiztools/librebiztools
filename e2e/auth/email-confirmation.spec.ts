@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { expect, test } from '@playwright/test';
 import { getTestContext } from '~/.server/context';
-import { confirmEmail, signup } from '~/.server/services/auth';
+import { signup } from '~/.server/services/auth';
 import { getUserById } from '~/.server/services/user';
 
 const password = 'password';

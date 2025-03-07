@@ -1,31 +1,20 @@
 import { useCallback, useMemo, useState } from 'react';
 import { FaCheck } from 'react-icons/fa';
 import { Form, data, href, redirect } from 'react-router';
-import { getContext } from '~/.server/context';
-import { loginRedirect } from '~/.server/helpers';
+import { AuthError } from '~/.server/errors';
 import { createWorkspace } from '~/.server/services/workspace';
+import { appContext } from '~/app-context';
 import { ErrorAlert } from '~/components/error-alert';
 import config from '~/config';
 import { slugify } from '~/utils/slugify';
 import type { Route } from './+types/workspaces.new';
 
-export async function loader({ request }: Route.LoaderArgs) {
-  const context = await getContext(request);
-  const { session } = context;
+export async function action({ context, request }: Route.ActionArgs) {
+  const ctx = context.get(appContext);
+  const { user } = ctx;
 
-  const userId = session.get('userId');
-  if (!userId) {
-    return loginRedirect(session);
-  }
-}
-
-export async function action({ request }: Route.ActionArgs) {
-  const context = await getContext(request);
-  const { session } = context;
-
-  const userId = session.get('userId');
-  if (!userId) {
-    return loginRedirect(session, request.url);
+  if (user.isNone()) {
+    throw new AuthError('User not found');
   }
 
   const formData = await request.formData();
@@ -33,10 +22,10 @@ export async function action({ request }: Route.ActionArgs) {
 
   const result = await createWorkspace(
     {
-      userId,
+      userId: user.value.id,
       name: workspaceName,
     },
-    context,
+    ctx,
   );
 
   if (result.isErr()) {

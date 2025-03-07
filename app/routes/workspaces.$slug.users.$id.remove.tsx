@@ -1,23 +1,19 @@
 import { FaCheck, FaUndo } from 'react-icons/fa';
 import { Form, data, redirect } from 'react-router';
-import { getContext } from '~/.server/context';
-import { errorRedirect, loginRedirect } from '~/.server/helpers';
+import { AuthError } from '~/.server/errors';
+import { errorRedirect } from '~/.server/helpers';
 import { getUserById } from '~/.server/services/user';
 import { removeUser } from '~/.server/services/workspace';
+import { appContext } from '~/app-context';
 import { ErrorAlert } from '~/components/error-alert';
 import type { Route } from './+types/workspaces.$slug.users.$id.remove';
 
-export async function loader({ request, params }: Route.LoaderArgs) {
-  const context = await getContext(request);
-  const { session } = context;
-
-  const userId = session.get('userId');
-  if (!userId) {
-    return loginRedirect(session, request.url);
-  }
+export async function loader({ context, params }: Route.LoaderArgs) {
+  const ctx = context.get(appContext);
+  const { session } = ctx;
 
   const removeUserId = Number.parseInt(params.id || '', 10);
-  const removeUser = await getUserById({ id: removeUserId }, context);
+  const removeUser = await getUserById({ id: removeUserId }, ctx);
   if (removeUser.isNone()) {
     return errorRedirect(session, 'User not found', '..');
   }
@@ -27,20 +23,19 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   });
 }
 
-export async function action({ request, params }: Route.ActionArgs) {
-  const context = await getContext(request);
-  const { session } = context;
+export async function action({ context, params }: Route.ActionArgs) {
+  const ctx = context.get(appContext);
+  const { user } = ctx;
 
-  const userId = session.get('userId');
-  if (!userId) {
-    return loginRedirect(session, request.url);
+  if (user.isNone()) {
+    throw new AuthError('User not found');
   }
 
   const removeUserId = Number.parseInt(params.id || '', 10);
 
   const result = await removeUser(
-    { userId, slug: params.slug, removeUserId },
-    context,
+    { userId: user.value.id, slug: params.slug, removeUserId },
+    ctx,
   );
   if (result.isErr()) {
     return data({ error: result.error.message });

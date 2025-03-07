@@ -1,35 +1,36 @@
 import { FaPlus, FaUndo } from 'react-icons/fa';
 import { Form, data, redirect } from 'react-router';
-import { getContext } from '~/.server/context';
-import { loginRedirect } from '~/.server/helpers';
+import { AuthError } from '~/.server/errors';
 import { addUser, getRoles } from '~/.server/services/workspace';
+import { appContext } from '~/app-context';
 import { ErrorAlert } from '~/components/error-alert';
 import config from '~/config';
 import type { Route } from './+types/workspaces.$slug.users.add';
 
-export async function loader({ request, params }: Route.LoaderArgs) {
-  const context = await getContext(request);
-  const { session } = context;
+export async function loader({ context, params }: Route.LoaderArgs) {
+  const ctx = context.get(appContext);
+  const { user } = ctx;
 
-  const userId = session.get('userId');
-  if (!userId) {
-    return loginRedirect(session, request.url);
+  if (user.isNone()) {
+    throw new AuthError('User not found');
   }
 
-  const roles = await getRoles({ userId, slug: params.slug }, context);
+  const roles = await getRoles(
+    { userId: user.value.id, slug: params.slug },
+    ctx,
+  );
 
   return data({
     roles,
   });
 }
 
-export async function action({ request, params }: Route.ActionArgs) {
-  const context = await getContext(request);
-  const { session } = context;
+export async function action({ context, request, params }: Route.ActionArgs) {
+  const ctx = context.get(appContext);
+  const { user } = ctx;
 
-  const userId = session.get('userId');
-  if (!userId) {
-    return loginRedirect(session, request.url);
+  if (user.isNone()) {
+    throw new AuthError('User not found');
   }
 
   const formData = await request.formData();
@@ -38,8 +39,8 @@ export async function action({ request, params }: Route.ActionArgs) {
   const roleId = Number.parseInt(formData.get('role')?.toString() || '', 10);
 
   const result = await addUser(
-    { userId, slug: params.slug, name, email, roleId },
-    context,
+    { userId: user.value.id, slug: params.slug, name, email, roleId },
+    ctx,
   );
   if (result.isErr()) {
     return data({ error: result.error.message });
